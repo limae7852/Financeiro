@@ -110,14 +110,14 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Saldo Total</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
+                                <h3 class="text-2xl font-bold text-gray-800" id="total-balance"></h3>
                             </div>
                             <div class="p-3 rounded-full bg-green-100 text-green-600">
                                 <i class="fas fa-wallet text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-green-500 text-sm font-semibold">+0.0%</span>
+                            <span class="text-green-500 text-sm font-semibold" id="total-balance-change"></span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
@@ -126,14 +126,14 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Receitas</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
+                                <h3 class="text-2xl font-bold text-gray-800" id="total-income"></h3>
                             </div>
                             <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                                 <i class="fas fa-arrow-up text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-green-500 text-sm font-semibold">+0.0%</span>
+                            <span class="text-green-500 text-sm font-semibold" id="income-change"></span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
@@ -142,14 +142,14 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Despesas</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
+                                <h3 class="text-2xl font-bold text-gray-800" id="total-expense"></h3>
                             </div>
                             <div class="p-3 rounded-full bg-red-100 text-red-600">
                                 <i class="fas fa-arrow-down text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-red-500 text-sm font-semibold">-0.0%</span>
+                            <span class="text-red-500 text-sm font-semibold" id="expense-change"></span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
@@ -158,14 +158,14 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Investimentos</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
+                                <h3 class="text-2xl font-bold text-gray-800" id="total-investments"></h3>
                             </div>
                             <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
                                 <i class="fas fa-chart-line text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-green-500 text-sm font-semibold">+0.0%</span>
+                            <span class="text-green-500 text-sm font-semibold" id="investments-change"></span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
@@ -193,7 +193,7 @@
                                 <i class="fas fa-plus mr-1"></i> Conectar
                             </button>
                         </div>
-                        <div class="space-y-4">
+                        <div class="space-y-4" id="bank-accounts-container">
                              </div>
                     </div>
                 </div>
@@ -206,7 +206,7 @@
                                 Ver todas
                             </button>
                         </div>
-                        <div class="space-y-4">
+                        <div class="space-y-4" id="transactions-container">
                             </div>
                         <div class="mt-4">
                             <button id="add-transaction-btn" class="w-full py-2 border border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-indigo-500 hover:text-indigo-500">
@@ -222,20 +222,20 @@
                                 Configurar
                             </button>
                         </div>
-                        <div class="monthly-budget">
+                        <div class="monthly-budget" id="budgets-container">
                             </div>
                         <div class="mt-6">
                             <div class="flex justify-between items-center">
                                 <span class="font-medium">Total gasto:</span>
-                                <span class="text-red-500 font-medium total-spent">R$ 0,00</span>
+                                <span class="text-red-500 font-medium" id="total-spent"></span>
                             </div>
                             <div class="flex justify-between items-center mt-2">
                                 <span class="font-medium">Orçamento total:</span>
-                                <span class="text-gray-700 font-medium total-budget">R$ 0,00</span>
+                                <span class="text-gray-700 font-medium" id="total-budget"></span>
                             </div>
                             <div class="flex justify-between items-center mt-2">
                                 <span class="font-medium">Restante:</span>
-                                <span class="text-green-500 font-medium remaining-budget">R$ 0,00</span>
+                                <span class="text-green-500 font-medium" id="remaining-budget"></span>
                             </div>
                         </div>
                     </div>
@@ -318,10 +318,12 @@
     <script>
         // Dados de exemplo (mock data) para simular um backend
         const dashboardData = {
-            totalBalance: 12345.67,
-            income: 8765.43,
-            expense: 4321.09,
-            investments: 23456.78,
+            summary: {
+                totalBalance: 12345.67,
+                income: 8765.43,
+                expense: 4321.09,
+                investments: 23456.78
+            },
             recentTransactions: [
                 { description: 'Salário', amount: 8000.00, type: 'income', source: 'Empresa XYZ', date: '15/06/2023', icon: 'money-bill-wave' },
                 { description: 'Supermercado', amount: 450.75, type: 'expense', source: 'Mercado ABC', date: '14/06/2023', icon: 'shopping-cart' },
@@ -342,18 +344,30 @@
         };
 
         // Função para formatar valores para o formato R$
-        const formatCurrency = (value) => `R$ ${value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+        const formatCurrency = (value) => {
+            const formattedValue = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+            return formattedValue;
+        };
 
         // Função para renderizar os dados do dashboard
         function renderDashboard() {
             // Cards de resumo
-            document.querySelector('.summary-total .text-2xl').textContent = formatCurrency(dashboardData.totalBalance);
-            document.querySelector('.summary-income .text-2xl').textContent = formatCurrency(dashboardData.income);
-            document.querySelector('.summary-expense .text-2xl').textContent = formatCurrency(dashboardData.expense);
-            document.querySelector('.summary-investments .text-2xl').textContent = formatCurrency(dashboardData.investments);
+            document.getElementById('total-balance').textContent = formatCurrency(dashboardData.summary.totalBalance);
+            document.getElementById('total-income').textContent = formatCurrency(dashboardData.summary.income);
+            document.getElementById('total-expense').textContent = formatCurrency(dashboardData.summary.expense);
+            document.getElementById('total-investments').textContent = formatCurrency(dashboardData.summary.investments);
+            
+            // Simular mudanças percentuais
+            document.getElementById('total-balance-change').textContent = "+2.5%";
+            document.getElementById('income-change').textContent = "+12%";
+            document.getElementById('expense-change').textContent = "-5%";
+            document.getElementById('investments-change').textContent = "+8.3%";
 
             // Transações recentes
-            const transactionsContainer = document.querySelector('.recent-transactions .space-y-4');
+            const transactionsContainer = document.getElementById('transactions-container');
             transactionsContainer.innerHTML = '';
             dashboardData.recentTransactions.forEach(transaction => {
                 const div = document.createElement('div');
@@ -368,13 +382,13 @@
                             <p class="text-gray-500 text-sm">${transaction.source} • ${transaction.date}</p>
                         </div>
                     </div>
-                    <span class="text-${transaction.type === 'income' ? 'green' : 'red'}-500 font-medium">${formatCurrency(transaction.amount)}</span>
+                    <span class="text-${transaction.type === 'income' ? 'green' : 'red'}-500 font-medium">${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}</span>
                 `;
                 transactionsContainer.appendChild(div);
             });
 
             // Orçamento
-            const budgetsContainer = document.querySelector('.monthly-budget');
+            const budgetsContainer = document.getElementById('budgets-container');
             budgetsContainer.innerHTML = '';
             let totalSpent = 0;
             let totalBudget = 0;
@@ -395,12 +409,12 @@
                 `;
                 budgetsContainer.appendChild(div);
             });
-            document.querySelector('.total-spent').textContent = formatCurrency(totalSpent);
-            document.querySelector('.total-budget').textContent = formatCurrency(totalBudget);
-            document.querySelector('.remaining-budget').textContent = formatCurrency(totalBudget - totalSpent);
+            document.getElementById('total-spent').textContent = formatCurrency(totalSpent);
+            document.getElementById('total-budget').textContent = formatCurrency(totalBudget);
+            document.getElementById('remaining-budget').textContent = formatCurrency(totalBudget - totalSpent);
 
             // Contas Bancárias
-            const bankAccountsContainer = document.querySelector('.bank-connections .space-y-4');
+            const bankAccountsContainer = document.getElementById('bank-accounts-container');
             bankAccountsContainer.innerHTML = '';
             dashboardData.bankAccounts.forEach(account => {
                 const div = document.createElement('div');
@@ -459,49 +473,62 @@
                     icon: 'shopping-bag'
                 };
                 dashboardData.recentTransactions.unshift(newTransaction);
+                // Atualiza o resumo
+                dashboardData.summary.expense += newTransaction.amount;
+                dashboardData.summary.totalBalance -= newTransaction.amount;
                 renderDashboard();
+                updateChart();
                 alert('Transação adicionada com sucesso!');
             });
 
             // Chart.js implementation
-            const ctx = document.getElementById('expenseChart').getContext('2d');
-            const chartData = dashboardData.monthlyBudgets.map(b => b.spent);
-            const chartLabels = dashboardData.monthlyBudgets.map(b => b.category);
-            const chartColors = dashboardData.monthlyBudgets.map(b => b.color);
+            let expenseChart;
+            const updateChart = () => {
+                if (expenseChart) {
+                    expenseChart.destroy();
+                }
 
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        data: chartData,
-                        backgroundColor: chartColors,
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
+                const chartData = dashboardData.monthlyBudgets.map(b => b.spent);
+                const chartLabels = dashboardData.monthlyBudgets.map(b => b.category);
+                const chartColors = dashboardData.monthlyBudgets.map(b => b.color);
+
+                const ctx = document.getElementById('expenseChart').getContext('2d');
+                expenseChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            data: chartData,
+                            backgroundColor: chartColors,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += formatCurrency(context.raw);
+                                        return label;
                                     }
-                                    label += formatCurrency(context.raw);
-                                    return label;
                                 }
                             }
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
+                        },
+                        cutout: '70%'
+                    }
+                });
+            };
+
+            updateChart();
 
             // Simulate bank selection
             const bankButtons = document.querySelectorAll('.bank-btn');
