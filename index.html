@@ -28,7 +28,6 @@
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen">
-        <!-- Sidebar -->
         <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg hidden md:block">
             <div class="flex items-center justify-center h-16 gradient-bg">
                 <h1 class="text-white font-bold text-xl">FinControl</h1>
@@ -61,7 +60,6 @@
             </nav>
         </div>
 
-        <!-- Mobile header -->
         <div class="md:hidden bg-white shadow">
             <div class="flex items-center justify-between px-4 py-3 gradient-bg">
                 <h1 class="text-white font-bold text-lg">FinControl</h1>
@@ -81,9 +79,7 @@
             </div>
         </div>
 
-        <!-- Main content -->
         <div class="md:ml-64">
-            <!-- Top bar -->
             <div class="bg-white shadow">
                 <div class="flex items-center justify-between px-6 py-3">
                     <div class="flex items-center">
@@ -108,78 +104,74 @@
                 </div>
             </div>
 
-            <!-- Content -->
             <div class="p-6">
-                <!-- Summary cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <div class="bg-white rounded-lg shadow p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 summary-cards-container">
+                    <div class="bg-white rounded-lg shadow p-6 summary-total">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Saldo Total</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 12.345,67</h3>
+                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
                             </div>
                             <div class="p-3 rounded-full bg-green-100 text-green-600">
                                 <i class="fas fa-wallet text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-green-500 text-sm font-semibold">+2.5%</span>
+                            <span class="text-green-500 text-sm font-semibold">+0.0%</span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-lg shadow p-6 summary-income">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Receitas</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 8.765,43</h3>
+                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
                             </div>
                             <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                                 <i class="fas fa-arrow-up text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-green-500 text-sm font-semibold">+12%</span>
+                            <span class="text-green-500 text-sm font-semibold">+0.0%</span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-lg shadow p-6 summary-expense">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Despesas</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 4.321,09</h3>
+                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
                             </div>
                             <div class="p-3 rounded-full bg-red-100 text-red-600">
                                 <i class="fas fa-arrow-down text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-red-500 text-sm font-semibold">-5%</span>
+                            <span class="text-red-500 text-sm font-semibold">-0.0%</span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-lg shadow p-6 summary-investments">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500">Investimentos</p>
-                                <h3 class="text-2xl font-bold text-gray-800">R$ 23.456,78</h3>
+                                <h3 class="text-2xl font-bold text-gray-800">R$ 0,00</h3>
                             </div>
                             <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
                                 <i class="fas fa-chart-line text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <span class="text-green-500 text-sm font-semibold">+8.3%</span>
+                            <span class="text-green-500 text-sm font-semibold">+0.0%</span>
                             <span class="text-gray-500 text-sm ml-2">vs último mês</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts and bank connections -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <!-- Expense chart -->
                     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Despesas por Categoria</h3>
@@ -194,8 +186,7 @@
                         </div>
                     </div>
 
-                    <!-- Bank connections -->
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-lg shadow p-6 bank-connections">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Contas Bancárias</h3>
                             <button id="connect-bank-btn" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700">
@@ -203,44 +194,12 @@
                             </button>
                         </div>
                         <div class="space-y-4">
-                            <div class="flex items-center p-3 border rounded-lg">
-                                <div class="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
-                                    <i class="fas fa-university"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-medium">Banco do Brasil</h4>
-                                    <p class="text-gray-500 text-sm">Conta Corrente •••• 3456</p>
-                                </div>
-                                <span class="text-green-500 font-medium">R$ 5.432,10</span>
-                            </div>
-                            <div class="flex items-center p-3 border rounded-lg">
-                                <div class="p-2 rounded-full bg-purple-100 text-purple-600 mr-3">
-                                    <i class="fas fa-credit-card"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-medium">Nubank</h4>
-                                    <p class="text-gray-500 text-sm">Cartão de Crédito •••• 7890</p>
-                                </div>
-                                <span class="text-red-500 font-medium">-R$ 1.234,56</span>
-                            </div>
-                            <div class="flex items-center p-3 border rounded-lg">
-                                <div class="p-2 rounded-full bg-green-100 text-green-600 mr-3">
-                                    <i class="fas fa-university"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-medium">Itaú</h4>
-                                    <p class="text-gray-500 text-sm">Conta Poupança •••• 1234</p>
-                                </div>
-                                <span class="text-green-500 font-medium">R$ 7.890,12</span>
-                            </div>
-                        </div>
+                             </div>
                     </div>
                 </div>
 
-                <!-- Recent transactions and budget -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Recent transactions -->
-                    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 recent-transactions">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Últimas Transações</h3>
                             <button class="text-indigo-600 text-sm font-medium hover:text-indigo-800">
@@ -248,63 +207,14 @@
                             </button>
                         </div>
                         <div class="space-y-4">
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg transaction-income">
-                                <div class="flex items-center">
-                                    <div class="p-2 rounded-full bg-green-100 text-green-600 mr-3">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium">Salário</h4>
-                                        <p class="text-gray-500 text-sm">Empresa XYZ • 15/06/2023</p>
-                                    </div>
-                                </div>
-                                <span class="text-green-500 font-medium">+R$ 8.000,00</span>
                             </div>
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg transaction-expense">
-                                <div class="flex items-center">
-                                    <div class="p-2 rounded-full bg-red-100 text-red-600 mr-3">
-                                        <i class="fas fa-shopping-cart"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium">Supermercado</h4>
-                                        <p class="text-gray-500 text-sm">Mercado ABC • 14/06/2023</p>
-                                    </div>
-                                </div>
-                                <span class="text-red-500 font-medium">-R$ 450,75</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg transaction-expense">
-                                <div class="flex items-center">
-                                    <div class="p-2 rounded-full bg-red-100 text-red-600 mr-3">
-                                        <i class="fas fa-home"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium">Aluguel</h4>
-                                        <p class="text-gray-500 text-sm">Imobiliária • 10/06/2023</p>
-                                    </div>
-                                </div>
-                                <span class="text-red-500 font-medium">-R$ 2.500,00</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg transaction-income">
-                                <div class="flex items-center">
-                                    <div class="p-2 rounded-full bg-green-100 text-green-600 mr-3">
-                                        <i class="fas fa-hand-holding-usd"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium">Freelance</h4>
-                                        <p class="text-gray-500 text-sm">Cliente B • 08/06/2023</p>
-                                    </div>
-                                </div>
-                                <span class="text-green-500 font-medium">+R$ 1.200,00</span>
-                            </div>
-                        </div>
                         <div class="mt-4">
-                            <button class="w-full py-2 border border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-indigo-500 hover:text-indigo-500">
+                            <button id="add-transaction-btn" class="w-full py-2 border border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-indigo-500 hover:text-indigo-500">
                                 <i class="fas fa-plus mr-2"></i> Adicionar transação
                             </button>
                         </div>
                     </div>
 
-                    <!-- Budget -->
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Orçamento Mensal</h3>
@@ -312,54 +222,20 @@
                                 Configurar
                             </button>
                         </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-sm font-medium">Alimentação</span>
-                                <span class="text-sm text-gray-500">R$ 450,75 / R$ 600,00</span>
+                        <div class="monthly-budget">
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 75%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-sm font-medium">Transporte</span>
-                                <span class="text-sm text-gray-500">R$ 320,50 / R$ 400,00</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: 80%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-sm font-medium">Lazer</span>
-                                <span class="text-sm text-gray-500">R$ 180,00 / R$ 300,00</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-1">
-                                <span class="text-sm font-medium">Moradia</span>
-                                <span class="text-sm text-gray-500">R$ 2.500,00 / R$ 2.500,00</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-red-500 h-2 rounded-full" style="width: 100%"></div>
-                            </div>
-                        </div>
                         <div class="mt-6">
                             <div class="flex justify-between items-center">
                                 <span class="font-medium">Total gasto:</span>
-                                <span class="text-red-500 font-medium">R$ 3.451,25</span>
+                                <span class="text-red-500 font-medium total-spent">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between items-center mt-2">
                                 <span class="font-medium">Orçamento total:</span>
-                                <span class="text-gray-700 font-medium">R$ 3.800,00</span>
+                                <span class="text-gray-700 font-medium total-budget">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between items-center mt-2">
                                 <span class="font-medium">Restante:</span>
-                                <span class="text-green-500 font-medium">R$ 348,75</span>
+                                <span class="text-green-500 font-medium remaining-budget">R$ 0,00</span>
                             </div>
                         </div>
                     </div>
@@ -368,7 +244,6 @@
         </div>
     </div>
 
-    <!-- Bank connection modal -->
     <div id="bank-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
@@ -441,49 +316,166 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
+        // Dados de exemplo (mock data) para simular um backend
+        const dashboardData = {
+            totalBalance: 12345.67,
+            income: 8765.43,
+            expense: 4321.09,
+            investments: 23456.78,
+            recentTransactions: [
+                { description: 'Salário', amount: 8000.00, type: 'income', source: 'Empresa XYZ', date: '15/06/2023', icon: 'money-bill-wave' },
+                { description: 'Supermercado', amount: 450.75, type: 'expense', source: 'Mercado ABC', date: '14/06/2023', icon: 'shopping-cart' },
+                { description: 'Aluguel', amount: 2500.00, type: 'expense', source: 'Imobiliária', date: '10/06/2023', icon: 'home' },
+                { description: 'Freelance', amount: 1200.00, type: 'income', source: 'Cliente B', date: '08/06/2023', icon: 'hand-holding-usd' },
+            ],
+            monthlyBudgets: [
+                { category: 'Alimentação', spent: 450.75, limit: 600.00, color: '#f59e0b' },
+                { category: 'Transporte', spent: 320.50, limit: 400.00, color: '#3b82f6' },
+                { category: 'Lazer', spent: 180.00, limit: 300.00, color: '#8b5cf6' },
+                { category: 'Moradia', spent: 2500.00, limit: 2500.00, color: '#ef4444' }
+            ],
+            bankAccounts: [
+                { bank: 'Banco do Brasil', account: 'Conta Corrente •••• 3456', balance: 5432.10, icon: 'university', color: 'blue' },
+                { bank: 'Nubank', account: 'Cartão de Crédito •••• 7890', balance: -1234.56, icon: 'credit-card', color: 'purple' },
+                { bank: 'Itaú', account: 'Conta Poupança •••• 1234', balance: 7890.12, icon: 'university', color: 'green' },
+            ]
+        };
 
-        // Bank connection modal
-        const connectBtn = document.getElementById('connect-bank-btn');
-        const bankModal = document.getElementById('bank-modal');
-        const cancelConnect = document.getElementById('cancel-connect');
-        const confirmConnect = document.getElementById('confirm-connect');
+        // Função para formatar valores para o formato R$
+        const formatCurrency = (value) => `R$ ${value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 
-        connectBtn.addEventListener('click', function() {
-            bankModal.classList.remove('hidden');
-        });
+        // Função para renderizar os dados do dashboard
+        function renderDashboard() {
+            // Cards de resumo
+            document.querySelector('.summary-total .text-2xl').textContent = formatCurrency(dashboardData.totalBalance);
+            document.querySelector('.summary-income .text-2xl').textContent = formatCurrency(dashboardData.income);
+            document.querySelector('.summary-expense .text-2xl').textContent = formatCurrency(dashboardData.expense);
+            document.querySelector('.summary-investments .text-2xl').textContent = formatCurrency(dashboardData.investments);
 
-        cancelConnect.addEventListener('click', function() {
-            bankModal.classList.add('hidden');
-        });
+            // Transações recentes
+            const transactionsContainer = document.querySelector('.recent-transactions .space-y-4');
+            transactionsContainer.innerHTML = '';
+            dashboardData.recentTransactions.forEach(transaction => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-3 bg-white rounded-lg transaction-${transaction.type}`;
+                div.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="p-2 rounded-full bg-${transaction.type === 'income' ? 'green' : 'red'}-100 text-${transaction.type === 'income' ? 'green' : 'red'}-600 mr-3">
+                            <i class="fas fa-${transaction.icon}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium">${transaction.description}</h4>
+                            <p class="text-gray-500 text-sm">${transaction.source} • ${transaction.date}</p>
+                        </div>
+                    </div>
+                    <span class="text-${transaction.type === 'income' ? 'green' : 'red'}-500 font-medium">${formatCurrency(transaction.amount)}</span>
+                `;
+                transactionsContainer.appendChild(div);
+            });
 
-        confirmConnect.addEventListener('click', function() {
-            bankModal.classList.add('hidden');
-            // Here you would normally connect to the bank API
-            alert('Conta bancária conectada com sucesso!');
-        });
+            // Orçamento
+            const budgetsContainer = document.querySelector('.monthly-budget');
+            budgetsContainer.innerHTML = '';
+            let totalSpent = 0;
+            let totalBudget = 0;
+            dashboardData.monthlyBudgets.forEach(budget => {
+                totalSpent += budget.spent;
+                totalBudget += budget.limit;
+                const div = document.createElement('div');
+                div.className = 'mb-4';
+                const percentage = (budget.spent / budget.limit) * 100;
+                div.innerHTML = `
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium">${budget.category}</span>
+                        <span class="text-sm text-gray-500">${formatCurrency(budget.spent)} / ${formatCurrency(budget.limit)}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="h-2 rounded-full" style="width: ${percentage}%; background-color: ${budget.color}"></div>
+                    </div>
+                `;
+                budgetsContainer.appendChild(div);
+            });
+            document.querySelector('.total-spent').textContent = formatCurrency(totalSpent);
+            document.querySelector('.total-budget').textContent = formatCurrency(totalBudget);
+            document.querySelector('.remaining-budget').textContent = formatCurrency(totalBudget - totalSpent);
 
-        // Chart.js implementation
+            // Contas Bancárias
+            const bankAccountsContainer = document.querySelector('.bank-connections .space-y-4');
+            bankAccountsContainer.innerHTML = '';
+            dashboardData.bankAccounts.forEach(account => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center p-3 border rounded-lg';
+                div.innerHTML = `
+                    <div class="p-2 rounded-full bg-${account.color}-100 text-${account.color}-600 mr-3">
+                        <i class="fas fa-${account.icon}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium">${account.bank}</h4>
+                        <p class="text-gray-500 text-sm">${account.account}</p>
+                    </div>
+                    <span class="text-${account.balance >= 0 ? 'green' : 'red'}-500 font-medium">${formatCurrency(account.balance)}</span>
+                `;
+                bankAccountsContainer.appendChild(div);
+            });
+        }
+
+        // Lógica da UI
         document.addEventListener('DOMContentLoaded', function() {
+            renderDashboard();
+
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            });
+
+            // Bank connection modal
+            const connectBtn = document.getElementById('connect-bank-btn');
+            const bankModal = document.getElementById('bank-modal');
+            const cancelConnect = document.getElementById('cancel-connect');
+            const confirmConnect = document.getElementById('confirm-connect');
+
+            connectBtn.addEventListener('click', function() {
+                bankModal.classList.remove('hidden');
+            });
+
+            cancelConnect.addEventListener('click', function() {
+                bankModal.classList.add('hidden');
+            });
+
+            confirmConnect.addEventListener('click', function() {
+                bankModal.classList.add('hidden');
+                alert('Conta bancária conectada com sucesso!');
+            });
+
+            // Adicionar nova transação (simulada)
+            document.getElementById('add-transaction-btn').addEventListener('click', function() {
+                const newTransaction = {
+                    description: 'Nova Despesa',
+                    amount: 75.50,
+                    type: 'expense',
+                    source: 'Lojinha da esquina',
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    icon: 'shopping-bag'
+                };
+                dashboardData.recentTransactions.unshift(newTransaction);
+                renderDashboard();
+                alert('Transação adicionada com sucesso!');
+            });
+
+            // Chart.js implementation
             const ctx = document.getElementById('expenseChart').getContext('2d');
-            const expenseChart = new Chart(ctx, {
+            const chartData = dashboardData.monthlyBudgets.map(b => b.spent);
+            const chartLabels = dashboardData.monthlyBudgets.map(b => b.category);
+            const chartColors = dashboardData.monthlyBudgets.map(b => b.color);
+
+            new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Outros'],
+                    labels: chartLabels,
                     datasets: [{
-                        data: [450.75, 2500, 320.50, 180, 150.25, 350.75],
-                        backgroundColor: [
-                            '#f59e0b',
-                            '#ef4444',
-                            '#3b82f6',
-                            '#8b5cf6',
-                            '#10b981',
-                            '#9ca3af'
-                        ],
+                        data: chartData,
+                        backgroundColor: chartColors,
                         borderWidth: 0
                     }]
                 },
@@ -501,7 +493,7 @@
                                     if (label) {
                                         label += ': ';
                                     }
-                                    label += 'R$ ' + context.raw.toFixed(2);
+                                    label += formatCurrency(context.raw);
                                     return label;
                                 }
                             }
@@ -510,14 +502,14 @@
                     cutout: '70%'
                 }
             });
-        });
 
-        // Simulate bank selection
-        const bankButtons = document.querySelectorAll('.bank-btn');
-        bankButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                bankButtons.forEach(btn => btn.classList.remove('border-indigo-500', 'bg-indigo-50'));
-                this.classList.add('border-indigo-500', 'bg-indigo-50');
+            // Simulate bank selection
+            const bankButtons = document.querySelectorAll('.bank-btn');
+            bankButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    bankButtons.forEach(btn => btn.classList.remove('border-indigo-500', 'bg-indigo-50'));
+                    this.classList.add('border-indigo-500', 'bg-indigo-50');
+                });
             });
         });
     </script>
