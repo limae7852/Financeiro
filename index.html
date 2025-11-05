@@ -3,80 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoneyMagnet | Gestão Financeira</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <title>MoneyMagnet - Controle Financeiro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+<body class="bg-light">
 
-<body class="bg-gray-50">
-  <main class="container mx-auto px-4 py-8">
-    <!-- Cabeçalho -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-800">Painel Financeiro</h1>
-        <p class="text-gray-600">Resumo completo das finanças da sua empresa</p>
-      </div>
-      <div class="mt-4 md:mt-0">
-        <button id="btnNovaTransacao" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center">
-          <i data-feather="plus" class="mr-2"></i> Nova Transação
-        </button>
+  <div class="container py-4">
+    <h2 class="text-center mb-4">💰 MoneyMagnet - Controle Financeiro</h2>
+
+    <!-- FORMULÁRIO DE TRANSAÇÃO -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Nova Transação</h5>
+        <form id="formTransacao" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Descrição</label>
+            <input type="text" id="descricao" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Valor (R$)</label>
+            <input type="number" id="valor" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Tipo</label>
+            <select id="tipo" class="form-select" required>
+              <option value="">Selecione</option>
+              <option value="receita">Receita</option>
+              <option value="despesa">Despesa</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Salvar</button>
+          </div>
+        </form>
       </div>
     </div>
 
-    <!-- Resumo Financeiro -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <h3 class="text-gray-600">Receitas</h3>
-        <p id="total-receitas" class="text-2xl font-bold text-green-600">R$ 0,00</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <h3 class="text-gray-600">Despesas</h3>
-        <p id="total-despesas" class="text-2xl font-bold text-red-600">R$ 0,00</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <h3 class="text-gray-600">Lucro</h3>
-        <p id="lucro" class="text-2xl font-bold text-indigo-600">R$ 0,00</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <h3 class="text-gray-600">Saldo</h3>
-        <p id="saldo" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
+    <!-- TABELA DE TRANSAÇÕES -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Transações Registradas</h5>
+        <table class="table table-striped" id="tabelaTransacoes">
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>Tipo</th>
+              <th>Valor (R$)</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Lista de Transações -->
-    <div class="bg-white p-6 rounded-xl shadow mb-8">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Transações Recentes</h2>
-      <div id="lista-transacoes" class="space-y-4">
-        <p class="text-gray-500 text-center">Nenhuma transação registrada ainda.</p>
-      </div>
-    </div>
-  </main>
-
-  <!-- Modal Nova Transação -->
-  <div id="modalTransacao" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white rounded-xl p-6 w-96 shadow-lg">
-      <h3 class="text-lg font-semibold mb-4">Nova Transação</h3>
-      <input id="descricao" type="text" placeholder="Descrição" class="w-full border rounded p-2 mb-3">
-      <input id="valor" type="number" placeholder="Valor (R$)" class="w-full border rounded p-2 mb-3">
-      <select id="tipo" class="w-full border rounded p-2 mb-3">
-        <option value="receita">Receita</option>
-        <option value="despesa">Despesa</option>
-      </select>
-      <div class="flex justify-end space-x-2">
-        <button id="cancelar" class="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
-        <button id="salvar" class="px-4 py-2 bg-indigo-600 text-white rounded">Salvar</button>
+    <!-- RELATÓRIO -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">📊 Relatório de Receitas e Despesas</h5>
+        <canvas id="grafico"></canvas>
+        <div class="mt-4 text-center">
+          <h5><span id="totalReceitas" class="text-success fw-bold"></span></h5>
+          <h5><span id="totalDespesas" class="text-danger fw-bold"></span></h5>
+          <h5><span id="saldoFinal" class="fw-bold"></span></h5>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-      getFirestore, collection, addDoc, getDocs, onSnapshot, setDoc, doc, getDoc 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // 🔥 CONFIGURAÇÃO DO SEU FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyBKL1wKzXRmQl75S1L0JwEzsT_UPtoLq5o",
       authDomain: "moneymagnet-financeiro.firebaseapp.com",
@@ -86,103 +86,81 @@
       appId: "1:861048650591:web:7d62142069a213b67b14ea"
     };
 
-    // Inicializa Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const modal = document.getElementById("modalTransacao");
-    const btnNovaTransacao = document.getElementById("btnNovaTransacao");
-    const cancelar = document.getElementById("cancelar");
-    const salvar = document.getElementById("salvar");
-    const lista = document.getElementById("lista-transacoes");
+    const form = document.getElementById('formTransacao');
+    const tabela = document.getElementById('tabelaTransacoes').querySelector('tbody');
+    const graficoCanvas = document.getElementById('grafico');
 
-    // 🔧 Cria a estrutura inicial do banco (se não existir)
-    async function criarEstruturaInicial() {
-      const configRef = doc(db, "configuracao", "dadosIniciais");
-      const docSnap = await getDoc(configRef);
+    let grafico;
 
-      if (!docSnap.exists()) {
-        await setDoc(configRef, {
-          criadoEm: new Date().toISOString(),
-          empresa: "Minha Empresa LTDA",
-          moedaPadrao: "BRL",
-          descricao: "Configuração inicial criada automaticamente"
-        });
-        console.log("✅ Estrutura inicial criada no banco Firestore!");
-      } else {
-        console.log("✅ Estrutura já existente.");
-      }
-    }
+    // Salvar transação
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const descricao = document.getElementById('descricao').value;
+      const valor = parseFloat(document.getElementById('valor').value);
+      const tipo = document.getElementById('tipo').value;
 
-    // Executa criação da estrutura ao iniciar
-    criarEstruturaInicial();
-
-    // Abrir e fechar modal
-    btnNovaTransacao.addEventListener("click", () => modal.classList.remove("hidden"));
-    cancelar.addEventListener("click", () => modal.classList.add("hidden"));
-
-    // Salvar nova transação
-    salvar.addEventListener("click", async () => {
-      const descricao = document.getElementById("descricao").value;
-      const valor = parseFloat(document.getElementById("valor").value);
-      const tipo = document.getElementById("tipo").value;
-
-      if (!descricao || isNaN(valor)) {
-        alert("Preencha todos os campos corretamente!");
-        return;
-      }
+      if (!descricao || !valor || !tipo) return alert("Preencha todos os campos!");
 
       await addDoc(collection(db, "transacoes"), {
         descricao,
         valor,
         tipo,
-        data: new Date().toISOString()
+        data: serverTimestamp()
       });
 
-      modal.classList.add("hidden");
-      document.getElementById("descricao").value = "";
-      document.getElementById("valor").value = "";
+      form.reset();
     });
 
-    // Atualizar tela em tempo real com as transações
+    // Atualizar tabela e relatório em tempo real
     onSnapshot(collection(db, "transacoes"), (snapshot) => {
-      lista.innerHTML = "";
-      let totalReceitas = 0;
-      let totalDespesas = 0;
+      tabela.innerHTML = "";
+      let receitas = 0;
+      let despesas = 0;
 
-      snapshot.forEach((doc) => {
+      snapshot.forEach(doc => {
         const t = doc.data();
-        const valor = parseFloat(t.valor);
-        const dataFormatada = new Date(t.data).toLocaleDateString("pt-BR");
+        const dataFormatada = t.data ? new Date(t.data.toDate()).toLocaleString() : "-";
 
-        if (t.tipo === "receita") totalReceitas += valor;
-        else totalDespesas += valor;
-
-        const item = document.createElement("div");
-        item.className = "flex items-center justify-between border-b pb-2";
-        item.innerHTML = `
-          <div>
-            <p class="font-medium">${t.descricao}</p>
-            <p class="text-sm text-gray-500">${dataFormatada}</p>
-          </div>
-          <p class="font-medium ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">
-            ${t.tipo === "receita" ? "+" : "-"} R$ ${valor.toFixed(2).replace(".", ",")}
-          </p>
+        const linha = `
+          <tr>
+            <td>${t.descricao}</td>
+            <td class="${t.tipo === 'receita' ? 'text-success' : 'text-danger'}">${t.tipo}</td>
+            <td>${t.valor.toFixed(2)}</td>
+            <td>${dataFormatada}</td>
+          </tr>
         `;
-        lista.appendChild(item);
+        tabela.innerHTML += linha;
+
+        if (t.tipo === "receita") receitas += t.valor;
+        else despesas += t.valor;
       });
 
-      // Atualiza o resumo
-      const lucro = totalReceitas - totalDespesas;
-      const saldo = totalReceitas - totalDespesas;
+      // Atualizar totais
+      document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2)}`;
+      document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toFixed(2)}`;
+      document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toFixed(2)}`;
 
-      document.getElementById("total-receitas").textContent = `R$ ${totalReceitas.toFixed(2).replace(".", ",")}`;
-      document.getElementById("total-despesas").textContent = `R$ ${totalDespesas.toFixed(2).replace(".", ",")}`;
-      document.getElementById("lucro").textContent = `R$ ${lucro.toFixed(2).replace(".", ",")}`;
-      document.getElementById("saldo").textContent = `R$ ${saldo.toFixed(2).replace(".", ",")}`;
+      // Atualizar gráfico
+      atualizarGrafico(receitas, despesas);
     });
-  </script>
 
-  <script> feather.replace(); </script>
+    // Função do gráfico
+    function atualizarGrafico(receitas, despesas) {
+      if (grafico) grafico.destroy();
+      grafico = new Chart(graficoCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Receitas', 'Despesas'],
+          datasets: [{
+            data: [receitas, despesas],
+            backgroundColor: ['#198754', '#dc3545']
+          }]
+        }
+      });
+    }
+  </script>
 </body>
 </html>
