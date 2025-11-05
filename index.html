@@ -1,87 +1,98 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Financeiro</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoneyMagnet | Gestão Financeira</title>
+
+  <!-- TailwindCSS + Feather Icons + Chart.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    .card {
-      border-radius: 10px;
-    }
-    .chart-container {
-      position: relative;
-      height: 250px; /* gráfico menor */
-      width: 100%;
-    }
-  </style>
 </head>
-<body>
-  <div class="container py-4">
-    <h2 class="text-center mb-4">💰 Controle Financeiro</h2>
+
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navbar -->
+  <nav class="bg-indigo-700 text-white p-4 shadow">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">💰 MoneyMagnet</h1>
+      <a href="#" class="hover:underline">Dashboard</a>
+    </div>
+  </nav>
+
+  <!-- Conteúdo principal -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-800">Painel Financeiro</h2>
+        <p class="text-gray-600">Controle completo de receitas e despesas</p>
+      </div>
+    </div>
 
     <!-- Formulário -->
-    <div class="card p-3 mb-4 shadow-sm">
-      <h5>Registrar Transação</h5>
-      <form id="formTransacao">
-        <div class="row g-3">
-          <div class="col-md-4">
-            <input type="text" id="descricao" class="form-control" placeholder="Descrição" required>
-          </div>
-          <div class="col-md-3">
-            <input type="number" id="valor" class="form-control" placeholder="Valor" required>
-          </div>
-          <div class="col-md-3">
-            <select id="tipo" class="form-select" required>
-              <option value="">Selecione o tipo</option>
-              <option value="receita">Receita</option>
-              <option value="despesa">Despesa</option>
-            </select>
-          </div>
-          <div class="col-md-2 d-grid">
-            <button type="submit" class="btn btn-success">Adicionar</button>
-          </div>
-        </div>
+    <div class="bg-white p-6 rounded-xl shadow mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
+      <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-1 md:col-span-2" />
+        <input type="number" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
+        <select id="tipo" class="border p-2 rounded">
+          <option value="">Tipo</option>
+          <option value="receita">Receita</option>
+          <option value="despesa">Despesa</option>
+        </select>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+          <i data-feather="plus" class="inline w-4 h-4 mr-1"></i>Salvar
+        </button>
       </form>
     </div>
 
-    <!-- Lista -->
-    <div class="card p-3 mb-4 shadow-sm">
-      <h5>📋 Transações</h5>
-      <table class="table table-striped mt-3">
-        <thead class="table-dark">
-          <tr>
-            <th>Descrição</th>
-            <th>Valor (R$)</th>
-            <th>Tipo</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="listaTransacoes"></tbody>
-      </table>
-    </div>
-
-    <!-- Relatórios -->
-    <div class="card p-3 shadow-sm">
-      <h5>📊 Relatórios de Receitas e Despesas</h5>
-      <div class="chart-container">
-        <canvas id="graficoFinanceiro"></canvas>
+    <!-- Relatório financeiro -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold" id="totalReceitas">
+        Receitas: R$ 0,00
       </div>
-      <div class="text-center mt-3">
-        <h6 id="saldoTotal" class="fw-bold"></h6>
+      <div class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold" id="totalDespesas">
+        Despesas: R$ 0,00
+      </div>
+      <div class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold" id="saldoFinal">
+        Saldo: R$ 0,00
       </div>
     </div>
-  </div>
 
-  <script>
-    // 🔥 Firebase Config
+    <!-- Gráfico -->
+    <div class="bg-white p-6 rounded-xl shadow mb-8">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Relatório de Receitas e Despesas</h3>
+      <canvas id="grafico" height="100"></canvas>
+    </div>
+
+    <!-- Tabela -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800">Transações</h3>
+      <div class="overflow-x-auto">
+        <table id="tabelaTransacoes" class="w-full text-left border">
+          <thead>
+            <tr class="bg-gray-200 text-gray-700">
+              <th class="p-2">Descrição</th>
+              <th class="p-2">Tipo</th>
+              <th class="p-2">Valor (R$)</th>
+              <th class="p-2">Data</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, onSnapshot,
+      serverTimestamp, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // 🔧 CONFIGURAÇÃO DO FIREBASE (cole a sua aqui)
     const firebaseConfig = {
       apiKey: "AIzaSyBKL1wKzXRmQl75S1L0JwEzsT_UPtoLq5o",
       authDomain: "moneymagnet-financeiro.firebaseapp.com",
@@ -91,108 +102,104 @@
       appId: "1:861048650591:web:7d62142069a213b67b14ea"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // Inicializa o app e Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    const form = document.getElementById('formTransacao');
-    const lista = document.getElementById('listaTransacoes');
-    const ctx = document.getElementById('graficoFinanceiro').getContext('2d');
-    const saldoTexto = document.getElementById('saldoTotal');
-
+    // Referências de elementos
+    const form = document.getElementById("formTransacao");
+    const tabela = document.getElementById("tabelaTransacoes").querySelector("tbody");
+    const graficoCanvas = document.getElementById("grafico");
     let grafico;
 
-    // 🟢 Adicionar transação
-    form.addEventListener('submit', (e) => {
+    // Adiciona nova transação
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const descricao = document.getElementById('descricao').value.trim();
-      const valor = parseFloat(document.getElementById('valor').value);
-      const tipo = document.getElementById('tipo').value;
+      const descricao = document.getElementById("descricao").value.trim();
+      const valor = parseFloat(document.getElementById("valor").value);
+      const tipo = document.getElementById("tipo").value;
 
-      if (!descricao || isNaN(valor) || !tipo) return;
+      if (!descricao || isNaN(valor) || !tipo) {
+        alert("Preencha todos os campos corretamente!");
+        return;
+      }
 
-      const novaTransacao = { descricao, valor, tipo };
-      db.ref('transacoes').push(novaTransacao);
+      await addDoc(collection(db, "transacoes"), {
+        descricao,
+        valor,
+        tipo,
+        data: serverTimestamp()
+      });
+
       form.reset();
     });
 
-    // 🔵 Carregar transações existentes e ouvir mudanças em tempo real
-    function carregarTransacoes() {
-      const ref = db.ref('transacoes');
-      ref.off(); // evita duplicação de listeners
-      ref.on('value', (snapshot) => {
-        lista.innerHTML = '';
-        let receitas = 0;
-        let despesas = 0;
+    // Função para renderizar dados
+    function carregarTransacoes(snapshot) {
+      tabela.innerHTML = "";
+      let receitas = 0;
+      let despesas = 0;
 
-        if (!snapshot.exists()) {
-          lista.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Nenhuma transação registrada.</td></tr>`;
-          atualizarGrafico(0, 0);
-          saldoTexto.textContent = '';
-          return;
+      snapshot.forEach(doc => {
+        const t = doc.data();
+        let dataFormatada = "-";
+        if (t.data && t.data.toDate) {
+          dataFormatada = new Date(t.data.toDate()).toLocaleString("pt-BR");
         }
 
-        snapshot.forEach((child) => {
-          const id = child.key;
-          const transacao = child.val();
+        const linha = `
+          <tr class="border-b hover:bg-gray-50">
+            <td class="p-2">${t.descricao || "(sem descrição)"}</td>
+            <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo || "—"}</td>
+            <td class="p-2">${t.valor ? t.valor.toFixed(2) : "0.00"}</td>
+            <td class="p-2">${dataFormatada}</td>
+          </tr>
+        `;
+        tabela.innerHTML += linha;
 
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${transacao.descricao}</td>
-            <td>${transacao.valor.toFixed(2)}</td>
-            <td>
-              <span class="badge ${transacao.tipo === 'receita' ? 'bg-success' : 'bg-danger'}">
-                ${transacao.tipo}
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-danger" onclick="removerTransacao('${id}')">
-                <i class="bi bi-trash"></i> Excluir
-              </button>
-            </td>
-          `;
-          lista.appendChild(row);
-
-          if (transacao.tipo === 'receita') receitas += transacao.valor;
-          else despesas += transacao.valor;
-        });
-
-        const saldo = receitas - despesas;
-        saldoTexto.textContent = `💵 Saldo Atual: R$ ${saldo.toFixed(2)}`;
-        atualizarGrafico(receitas, despesas);
+        if (t.tipo === "receita") receitas += t.valor || 0;
+        else if (t.tipo === "despesa") despesas += t.valor || 0;
       });
+
+      // Atualiza totais
+      document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2)}`;
+      document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toFixed(2)}`;
+      document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toFixed(2)}`;
+
+      // Atualiza gráfico
+      atualizarGrafico(receitas, despesas);
     }
 
-    // 🔴 Remover transação
-    function removerTransacao(id) {
-      db.ref('transacoes/' + id).remove();
-    }
-
-    // 🟠 Atualizar gráfico
+    // Atualiza o gráfico
     function atualizarGrafico(receitas, despesas) {
       if (grafico) grafico.destroy();
-      grafico = new Chart(ctx, {
-        type: 'doughnut',
+      grafico = new Chart(graficoCanvas, {
+        type: "doughnut",
         data: {
-          labels: ['Receitas', 'Despesas'],
+          labels: ["Receitas", "Despesas"],
           datasets: [{
             data: [receitas, despesas],
-            backgroundColor: ['#198754', '#dc3545']
+            backgroundColor: ["#16a34a", "#dc2626"]
           }]
         },
         options: {
-          responsive: true,
           plugins: {
-            legend: { position: 'bottom' },
-            title: {
-              display: true,
-              text: 'Resumo Financeiro'
-            }
+            legend: { position: "bottom" }
           }
         }
       });
     }
 
-    carregarTransacoes();
+    // Escuta alterações em tempo real
+    const q = query(collection(db, "transacoes"), orderBy("data", "desc"));
+    onSnapshot(q, (snapshot) => {
+      carregarTransacoes(snapshot);
+    });
+
+    // Fallback (carrega caso snapshot falhe)
+    getDocs(collection(db, "transacoes")).then(snapshot => carregarTransacoes(snapshot));
+
+    feather.replace();
   </script>
 </body>
 </html>
