@@ -135,60 +135,41 @@
     });
 
     // Função para renderizar dados
-    function carregarTransacoes(snapshot) {
-      tabela.innerHTML = "";
-      let receitas = 0;
-      let despesas = 0;
+    function function carregarTransacoes(snapshot) {
+  tabela.innerHTML = "";
+  let receitas = 0;
+  let despesas = 0;
 
-      snapshot.forEach(doc => {
-        const t = doc.data();
-        let dataFormatada = "-";
-        if (t.data && t.data.toDate) {
-          dataFormatada = new Date(t.data.toDate()).toLocaleString("pt-BR");
-        }
-
-        const linha = `
-          <tr class="border-b hover:bg-gray-50">
-            <td class="p-2">${t.descricao || "(sem descrição)"}</td>
-            <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo || "—"}</td>
-            <td class="p-2">${t.valor ? t.valor.toFixed(2) : "0.00"}</td>
-            <td class="p-2">${dataFormatada}</td>
-          </tr>
-        `;
-        tabela.innerHTML += linha;
-
-        if (t.tipo === "receita") receitas += t.valor || 0;
-        else if (t.tipo === "despesa") despesas += t.valor || 0;
-      });
-
-      // Atualiza totais
-      document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2)}`;
-      document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toFixed(2)}`;
-      document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toFixed(2)}`;
-
-      // Atualiza gráfico
-      atualizarGrafico(receitas, despesas);
+  snapshot.forEach(doc => {
+    const t = doc.data();
+    let dataFormatada = "-";
+    if (t.data && t.data.toDate) {
+      const d = new Date(t.data.toDate());
+      dataFormatada = d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     }
 
-    // Atualiza o gráfico
-    function atualizarGrafico(receitas, despesas) {
-      if (grafico) grafico.destroy();
-      grafico = new Chart(graficoCanvas, {
-        type: "doughnut",
-        data: {
-          labels: ["Receitas", "Despesas"],
-          datasets: [{
-            data: [receitas, despesas],
-            backgroundColor: ["#16a34a", "#dc2626"]
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { position: "bottom" }
-          }
-        }
-      });
-    }
+    const linha = `
+      <tr class="border-b hover:bg-gray-50">
+        <td class="p-2">${t.descricao || "(sem descrição)"}</td>
+        <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo || "—"}</td>
+        <td class="p-2">${t.valor ? t.valor.toFixed(2) : "0.00"}</td>
+        <td class="p-2 text-gray-600">${dataFormatada}</td>
+      </tr>
+    `;
+    tabela.innerHTML += linha;
+
+    if (t.tipo === "receita") receitas += t.valor || 0;
+    else if (t.tipo === "despesa") despesas += t.valor || 0;
+  });
+
+  // Atualiza totais
+  document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2)}`;
+  document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toFixed(2)}`;
+  document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toFixed(2)}`;
+
+  // Atualiza gráfico
+  atualizarGrafico(receitas, despesas);
+}
 
     // Escuta alterações em tempo real
     const q = query(collection(db, "transacoes"), orderBy("data", "desc"));
