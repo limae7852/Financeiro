@@ -1,167 +1,188 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyMagnet | Gestão Financeira</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoneyMagnet | Gestão Financeira</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
+
 <body class="bg-gray-50">
-    <main class="container mx-auto px-4 py-8">
-        <!-- Dashboard Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Painel Financeiro</h1>
-                <p class="text-gray-600">Resumo completo das finanças da sua empresa</p>
-            </div>
-            <div class="mt-4 md:mt-0">
-                <button id="btnNovaTransacao" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center">
-                    <i data-feather="plus" class="mr-2"></i> Nova Transação
-                </button>
-            </div>
-        </div>
-
-        <!-- Financial Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="summary-cards">
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-                <h3 class="text-gray-600">Receitas</h3>
-                <p id="total-receitas" class="text-2xl font-bold text-green-600">R$ 0,00</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-                <h3 class="text-gray-600">Despesas</h3>
-                <p id="total-despesas" class="text-2xl font-bold text-red-600">R$ 0,00</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-                <h3 class="text-gray-600">Lucro</h3>
-                <p id="lucro" class="text-2xl font-bold text-indigo-600">R$ 0,00</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow text-center">
-                <h3 class="text-gray-600">Saldo</h3>
-                <p id="saldo" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
-            </div>
-        </div>
-
-        <!-- Transações Recentes -->
-        <div class="bg-white p-6 rounded-xl shadow mb-8">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Transações Recentes</h2>
-            <div id="lista-transacoes" class="space-y-4">
-                <p class="text-gray-500 text-center">Nenhuma transação registrada ainda.</p>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal Nova Transação -->
-    <div id="modalTransacao" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white rounded-xl p-6 w-96 shadow-lg">
-            <h3 class="text-lg font-semibold mb-4">Nova Transação</h3>
-            <input id="descricao" type="text" placeholder="Descrição" class="w-full border rounded p-2 mb-3">
-            <input id="valor" type="number" placeholder="Valor (R$)" class="w-full border rounded p-2 mb-3">
-            <select id="tipo" class="w-full border rounded p-2 mb-3">
-                <option value="receita">Receita</option>
-                <option value="despesa">Despesa</option>
-            </select>
-            <div class="flex justify-end space-x-2">
-                <button id="cancelar" class="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
-                <button id="salvar" class="px-4 py-2 bg-indigo-600 text-white rounded">Salvar</button>
-            </div>
-        </div>
+  <main class="container mx-auto px-4 py-8">
+    <!-- Cabeçalho -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Painel Financeiro</h1>
+        <p class="text-gray-600">Resumo completo das finanças da sua empresa</p>
+      </div>
+      <div class="mt-4 md:mt-0">
+        <button id="btnNovaTransacao" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center">
+          <i data-feather="plus" class="mr-2"></i> Nova Transação
+        </button>
+      </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <!-- Resumo Financeiro -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <h3 class="text-gray-600">Receitas</h3>
+        <p id="total-receitas" class="text-2xl font-bold text-green-600">R$ 0,00</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <h3 class="text-gray-600">Despesas</h3>
+        <p id="total-despesas" class="text-2xl font-bold text-red-600">R$ 0,00</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <h3 class="text-gray-600">Lucro</h3>
+        <p id="lucro" class="text-2xl font-bold text-indigo-600">R$ 0,00</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <h3 class="text-gray-600">Saldo</h3>
+        <p id="saldo" class="text-2xl font-bold text-purple-600">R$ 0,00</p>
+      </div>
+    </div>
 
-        // 🔥 CONFIGURAÇÃO DO SEU FIREBASE
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "SEU_DOMINIO.firebaseapp.com",
-            projectId: "SEU_PROJECT_ID",
-            storageBucket: "SEU_BUCKET.appspot.com",
-            messagingSenderId: "SEU_SENDER_ID",
-            appId: "SEU_APP_ID"
-        };
+    <!-- Lista de Transações -->
+    <div class="bg-white p-6 rounded-xl shadow mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Transações Recentes</h2>
+      <div id="lista-transacoes" class="space-y-4">
+        <p class="text-gray-500 text-center">Nenhuma transação registrada ainda.</p>
+      </div>
+    </div>
+  </main>
 
-        // Inicializa Firebase e Firestore
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+  <!-- Modal Nova Transação -->
+  <div id="modalTransacao" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl p-6 w-96 shadow-lg">
+      <h3 class="text-lg font-semibold mb-4">Nova Transação</h3>
+      <input id="descricao" type="text" placeholder="Descrição" class="w-full border rounded p-2 mb-3">
+      <input id="valor" type="number" placeholder="Valor (R$)" class="w-full border rounded p-2 mb-3">
+      <select id="tipo" class="w-full border rounded p-2 mb-3">
+        <option value="receita">Receita</option>
+        <option value="despesa">Despesa</option>
+      </select>
+      <div class="flex justify-end space-x-2">
+        <button id="cancelar" class="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
+        <button id="salvar" class="px-4 py-2 bg-indigo-600 text-white rounded">Salvar</button>
+      </div>
+    </div>
+  </div>
 
-        const modal = document.getElementById("modalTransacao");
-        const btnNovaTransacao = document.getElementById("btnNovaTransacao");
-        const cancelar = document.getElementById("cancelar");
-        const salvar = document.getElementById("salvar");
-        const lista = document.getElementById("lista-transacoes");
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, collection, addDoc, getDocs, onSnapshot, setDoc, doc, getDoc 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Abrir e fechar modal
-        btnNovaTransacao.addEventListener("click", () => modal.classList.remove("hidden"));
-        cancelar.addEventListener("click", () => modal.classList.add("hidden"));
+    // 🔥 CONFIGURAÇÃO DO SEU FIREBASE
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY_AQUI",
+      authDomain: "SEU_DOMINIO.firebaseapp.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
 
-        // Salvar nova transação
-        salvar.addEventListener("click", async () => {
-            const descricao = document.getElementById("descricao").value;
-            const valor = parseFloat(document.getElementById("valor").value);
-            const tipo = document.getElementById("tipo").value;
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-            if (!descricao || isNaN(valor)) {
-                alert("Preencha todos os campos corretamente!");
-                return;
-            }
+    const modal = document.getElementById("modalTransacao");
+    const btnNovaTransacao = document.getElementById("btnNovaTransacao");
+    const cancelar = document.getElementById("cancelar");
+    const salvar = document.getElementById("salvar");
+    const lista = document.getElementById("lista-transacoes");
 
-            await addDoc(collection(db, "transacoes"), {
-                descricao,
-                valor,
-                tipo,
-                data: new Date().toISOString()
-            });
+    // 🔧 Cria a estrutura inicial do banco (se não existir)
+    async function criarEstruturaInicial() {
+      const configRef = doc(db, "configuracao", "dadosIniciais");
+      const docSnap = await getDoc(configRef);
 
-            modal.classList.add("hidden");
-            document.getElementById("descricao").value = "";
-            document.getElementById("valor").value = "";
+      if (!docSnap.exists()) {
+        await setDoc(configRef, {
+          criadoEm: new Date().toISOString(),
+          empresa: "Minha Empresa LTDA",
+          moedaPadrao: "BRL",
+          descricao: "Configuração inicial criada automaticamente"
         });
+        console.log("✅ Estrutura inicial criada no banco Firestore!");
+      } else {
+        console.log("✅ Estrutura já existente.");
+      }
+    }
 
-        // Exibir transações em tempo real
-        onSnapshot(collection(db, "transacoes"), (snapshot) => {
-            lista.innerHTML = "";
-            let totalReceitas = 0;
-            let totalDespesas = 0;
+    // Executa criação da estrutura ao iniciar
+    criarEstruturaInicial();
 
-            snapshot.forEach((doc) => {
-                const transacao = doc.data();
-                const valor = parseFloat(transacao.valor);
-                const dataFormatada = new Date(transacao.data).toLocaleDateString("pt-BR");
+    // Abrir e fechar modal
+    btnNovaTransacao.addEventListener("click", () => modal.classList.remove("hidden"));
+    cancelar.addEventListener("click", () => modal.classList.add("hidden"));
 
-                if (transacao.tipo === "receita") totalReceitas += valor;
-                else totalDespesas += valor;
+    // Salvar nova transação
+    salvar.addEventListener("click", async () => {
+      const descricao = document.getElementById("descricao").value;
+      const valor = parseFloat(document.getElementById("valor").value);
+      const tipo = document.getElementById("tipo").value;
 
-                const item = document.createElement("div");
-                item.className = "flex items-center justify-between border-b pb-2";
-                item.innerHTML = `
-                    <div>
-                        <p class="font-medium">${transacao.descricao}</p>
-                        <p class="text-sm text-gray-500">${dataFormatada}</p>
-                    </div>
-                    <p class="font-medium ${transacao.tipo === "receita" ? "text-green-600" : "text-red-600"}">
-                        ${transacao.tipo === "receita" ? "+" : "-"} R$ ${valor.toFixed(2).replace(".", ",")}
-                    </p>
-                `;
-                lista.appendChild(item);
-            });
+      if (!descricao || isNaN(valor)) {
+        alert("Preencha todos os campos corretamente!");
+        return;
+      }
 
-            // Atualiza resumo
-            const lucro = totalReceitas - totalDespesas;
-            const saldo = totalReceitas - totalDespesas; // saldo simples
+      await addDoc(collection(db, "transacoes"), {
+        descricao,
+        valor,
+        tipo,
+        data: new Date().toISOString()
+      });
 
-            document.getElementById("total-receitas").textContent = `R$ ${totalReceitas.toFixed(2).replace(".", ",")}`;
-            document.getElementById("total-despesas").textContent = `R$ ${totalDespesas.toFixed(2).replace(".", ",")}`;
-            document.getElementById("lucro").textContent = `R$ ${lucro.toFixed(2).replace(".", ",")}`;
-            document.getElementById("saldo").textContent = `R$ ${saldo.toFixed(2).replace(".", ",")}`;
-        });
-    </script>
+      modal.classList.add("hidden");
+      document.getElementById("descricao").value = "";
+      document.getElementById("valor").value = "";
+    });
 
-    <script>
-        feather.replace();
-    </script>
+    // Atualizar tela em tempo real com as transações
+    onSnapshot(collection(db, "transacoes"), (snapshot) => {
+      lista.innerHTML = "";
+      let totalReceitas = 0;
+      let totalDespesas = 0;
+
+      snapshot.forEach((doc) => {
+        const t = doc.data();
+        const valor = parseFloat(t.valor);
+        const dataFormatada = new Date(t.data).toLocaleDateString("pt-BR");
+
+        if (t.tipo === "receita") totalReceitas += valor;
+        else totalDespesas += valor;
+
+        const item = document.createElement("div");
+        item.className = "flex items-center justify-between border-b pb-2";
+        item.innerHTML = `
+          <div>
+            <p class="font-medium">${t.descricao}</p>
+            <p class="text-sm text-gray-500">${dataFormatada}</p>
+          </div>
+          <p class="font-medium ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">
+            ${t.tipo === "receita" ? "+" : "-"} R$ ${valor.toFixed(2).replace(".", ",")}
+          </p>
+        `;
+        lista.appendChild(item);
+      });
+
+      // Atualiza o resumo
+      const lucro = totalReceitas - totalDespesas;
+      const saldo = totalReceitas - totalDespesas;
+
+      document.getElementById("total-receitas").textContent = `R$ ${totalReceitas.toFixed(2).replace(".", ",")}`;
+      document.getElementById("total-despesas").textContent = `R$ ${totalDespesas.toFixed(2).replace(".", ",")}`;
+      document.getElementById("lucro").textContent = `R$ ${lucro.toFixed(2).replace(".", ",")}`;
+      document.getElementById("saldo").textContent = `R$ ${saldo.toFixed(2).replace(".", ",")}`;
+    });
+  </script>
+
+  <script> feather.replace(); </script>
 </body>
 </html>
