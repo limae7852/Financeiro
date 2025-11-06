@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MoneyMagnet | Gestão Financeira</title>
 
-  <!-- Tailwind + Feather + Chart.js -->
+  <!-- TailwindCSS + Feather Icons + Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,58 +20,74 @@
     </div>
   </nav>
 
+  <!-- Conteúdo principal -->
   <main class="container mx-auto px-4 py-8">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6">Painel Financeiro</h2>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-800">Painel Financeiro</h2>
+        <p class="text-gray-600">Controle completo de receitas e despesas</p>
+      </div>
+    </div>
 
     <!-- Formulário -->
     <div class="bg-white p-6 rounded-xl shadow mb-8">
       <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
       <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4">
         <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-2" />
+        
         <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
+
         <select id="tipo" class="border p-2 rounded">
           <option value="">Tipo</option>
           <option value="receita">Receita</option>
           <option value="despesa">Despesa</option>
         </select>
-        <input type="date" id="dataMovimento" class="border p-2 rounded hidden" />
-        <input type="date" id="dataVencimento" class="border p-2 rounded hidden" />
+
+        <input type="date" id="dataMovimento" class="border p-2 rounded bg-gray-100" disabled />
+        <input type="date" id="dataVencimento" class="border p-2 rounded bg-gray-100" disabled />
+
         <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
           <i data-feather="plus" class="inline w-4 h-4 mr-1"></i>Salvar
         </button>
       </form>
     </div>
 
-    <!-- Totais -->
+    <!-- Relatório financeiro -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div id="totalReceitas" class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold">Receitas: R$ 0,00</div>
-      <div id="totalDespesas" class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold">Despesas: R$ 0,00</div>
-      <div id="saldoFinal" class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold">Saldo: R$ 0,00</div>
+      <div class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold" id="totalReceitas">
+        Receitas: R$ 0,00
+      </div>
+      <div class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold" id="totalDespesas">
+        Despesas: R$ 0,00
+      </div>
+      <div class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold" id="saldoFinal">
+        Saldo: R$ 0,00
+      </div>
     </div>
 
     <!-- Gráfico -->
     <div class="bg-white p-6 rounded-xl shadow mb-8">
-      <h3 class="text-xl font-semibold mb-4 text-gray-800">Relatório de Receitas e Despesas</h3>
-      <canvas id="grafico" height="60" style="max-width:300px; margin:auto;"></canvas>
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Relatório de Receitas e Despesas</h3>
+      <canvas id="grafico" height="30" style="max-width:300px; margin:auto;"></canvas>
     </div>
 
     <!-- Tabela -->
     <div class="bg-white p-6 rounded-xl shadow">
       <h3 class="text-xl font-semibold mb-4 text-gray-800">Transações</h3>
       <div class="overflow-x-auto">
-        <table class="w-full text-left border">
+        <table id="tabelaTransacoes" class="w-full text-left border">
           <thead>
             <tr class="bg-gray-200 text-gray-700">
               <th class="p-2">Descrição</th>
               <th class="p-2">Tipo</th>
               <th class="p-2">Valor (R$)</th>
-              <th class="p-2">Data Mov.</th>
-              <th class="p-2">Data Venc.</th>
+              <th class="p-2">Movimento</th>
+              <th class="p-2">Vencimento</th>
               <th class="p-2">Status</th>
               <th class="p-2 text-center">Ações</th>
             </tr>
           </thead>
-          <tbody id="tabelaTransacoes"></tbody>
+          <tbody></tbody>
         </table>
       </div>
     </div>
@@ -81,10 +97,11 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, updateDoc, doc, getDocs,
-      onSnapshot, serverTimestamp, query, orderBy
+      getFirestore, collection, addDoc, getDocs, onSnapshot, updateDoc, doc,
+      serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+    // 🔧 CONFIGURAÇÃO DO FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyBKL1wKzXRmQl75S1L0JwEzsT_UPtoLq5o",
       authDomain: "moneymagnet-financeiro.firebaseapp.com",
@@ -94,115 +111,130 @@
       appId: "1:861048650591:web:7d62142069a213b67b14ea"
     };
 
+    // Inicializa o app e Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Referências de elementos
     const form = document.getElementById("formTransacao");
-    const tabela = document.getElementById("tabelaTransacoes");
-    const tipo = document.getElementById("tipo");
+    const tabela = document.getElementById("tabelaTransacoes").querySelector("tbody");
+    const tipoSelect = document.getElementById("tipo");
+    const dataMov = document.getElementById("dataMovimento");
+    const dataVenc = document.getElementById("dataVencimento");
     const valorInput = document.getElementById("valor");
-    const dataMovimento = document.getElementById("dataMovimento");
-    const dataVencimento = document.getElementById("dataVencimento");
+    const graficoCanvas = document.getElementById("grafico");
     let grafico;
 
-    // Máscara de valor (permite digitar valores normais com milhar)
-    valorInput.addEventListener("input", (e) => {
-      let v = e.target.value.replace(/\D/g, "");
+    // 💰 Máscara para valor com milhar
+    valorInput.addEventListener("input", () => {
+      let v = valorInput.value.replace(/\D/g, "");
       v = (v / 100).toFixed(2) + "";
       v = v.replace(".", ",");
       v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-      e.target.value = v;
+      valorInput.value = v;
     });
 
-    // Exibe campos de data conforme tipo
-    tipo.addEventListener("change", () => {
-      if (tipo.value === "receita") {
-        dataMovimento.classList.remove("hidden");
-        dataVencimento.classList.add("hidden");
-      } else if (tipo.value === "despesa") {
-        dataVencimento.classList.remove("hidden");
-        dataMovimento.classList.add("hidden");
-        dataVencimento.valueAsDate = new Date();
+    // Habilitar campos conforme o tipo
+    tipoSelect.addEventListener("change", () => {
+      const tipo = tipoSelect.value;
+      const hoje = new Date().toISOString().split("T")[0];
+
+      if (tipo === "receita") {
+        dataMov.disabled = false;
+        dataMov.value = hoje;
+        dataVenc.disabled = true;
+        dataVenc.value = "";
+        dataVenc.classList.remove("border-red-400");
+      } else if (tipo === "despesa") {
+        dataVenc.disabled = false;
+        dataVenc.value = hoje;
+        dataVenc.classList.add("border-red-400");
+        dataMov.disabled = true;
+        dataMov.value = "";
       } else {
-        dataMovimento.classList.add("hidden");
-        dataVencimento.classList.add("hidden");
+        dataMov.disabled = true;
+        dataVenc.disabled = true;
+        dataMov.value = "";
+        dataVenc.value = "";
+        dataVenc.classList.remove("border-red-400");
       }
     });
 
-    // Salvar transação
+    // Adiciona nova transação
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
-      const tipoValor = tipo.value;
       const valor = parseFloat(valorInput.value.replace(/\./g, "").replace(",", "."));
-      const mov = dataMovimento.value || null;
-      const venc = dataVencimento.value || null;
+      const tipo = tipoSelect.value;
+      const dataMovimento = dataMov.value || null;
+      const dataVencimento = dataVenc.value || null;
 
-      if (!descricao || !tipoValor || isNaN(valor)) return alert("Preencha os campos corretamente!");
+      if (!descricao || isNaN(valor) || !tipo) {
+        alert("Preencha todos os campos corretamente!");
+        return;
+      }
 
       await addDoc(collection(db, "transacoes"), {
         descricao,
-        tipo: tipoValor,
         valor,
-        dataMovimento: mov,
-        dataVencimento: venc,
+        tipo,
+        dataMovimento,
+        dataVencimento,
         pago: false,
         dataInclusao: serverTimestamp()
       });
 
       form.reset();
-      dataMovimento.classList.add("hidden");
-      dataVencimento.classList.add("hidden");
+      dataMov.disabled = true;
+      dataVenc.disabled = true;
     });
 
-    // Atualizar tabela e gráfico
+    // Função para renderizar tabela e totais
     function atualizarInterface(snapshot) {
       tabela.innerHTML = "";
       let receitas = 0, despesas = 0;
 
-      snapshot.forEach(d => {
-        const t = d.data();
-        const id = d.id;
-        if (t.tipo === "receita") receitas += t.valor || 0;
-        if (t.tipo === "despesa") despesas += t.valor || 0;
+      snapshot.forEach(docSnap => {
+        const t = docSnap.data();
+        const id = docSnap.id;
 
         const linha = document.createElement("tr");
         linha.className = "border-b hover:bg-gray-50";
+
+        const valor = t.valor ? t.valor.toFixed(2).replace(".", ",") : "0,00";
+        if (t.tipo === "receita") receitas += t.valor || 0;
+        if (t.tipo === "despesa") despesas += t.valor || 0;
+
         linha.innerHTML = `
           <td class="p-2">${t.descricao}</td>
           <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo}</td>
-          <td class="p-2">${t.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+          <td class="p-2">R$ ${valor}</td>
           <td class="p-2 text-gray-600">${t.dataMovimento || "-"}</td>
           <td class="p-2 text-gray-600">${t.dataVencimento || "-"}</td>
-          <td class="p-2">${t.tipo === "despesa" ? (t.pago ? "✅ Pago" : "❌ Em aberto") : "-"}</td>
+          <td class="p-2 text-center">${t.tipo === "despesa"
+            ? (t.pago ? "✅ Pago" : "⏳ Em aberto")
+            : "—"}</td>
           <td class="p-2 text-center">
             ${t.tipo === "despesa" && !t.pago
-              ? `<button data-id="${id}" class="baixar bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">Baixar</button>`
+              ? `<button data-id="${id}" class="baixar bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Baixar</button>`
               : ""}
           </td>
         `;
         tabela.appendChild(linha);
       });
 
-      document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2)}`;
-      document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toFixed(2)}`;
-      document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toFixed(2)}`;
-      atualizarGrafico(receitas, despesas);
+      document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2).replace(".", ",")}`;
+      document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toFixed(2).replace(".", ",")}`;
+      document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toFixed(2).replace(".", ",")}`;
 
-      // Botões de baixa
-      document.querySelectorAll(".baixar").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.dataset.id;
-          await updateDoc(doc(db, "transacoes", id), { pago: true });
-        });
-      });
+      atualizarGrafico(receitas, despesas);
+      adicionarEventosBaixa();
     }
 
-    // Gráfico
+    // Atualiza o gráfico
     function atualizarGrafico(receitas, despesas) {
-      const ctx = document.getElementById("grafico");
       if (grafico) grafico.destroy();
-      grafico = new Chart(ctx, {
+      grafico = new Chart(graficoCanvas, {
         type: "doughnut",
         data: {
           labels: ["Receitas", "Despesas"],
@@ -215,12 +247,19 @@
       });
     }
 
-    // Escuta em tempo real
-    const q = query(collection(db, "transacoes"), orderBy("dataInclusao", "desc"));
-    onSnapshot(q, (snapshot) => atualizarInterface(snapshot));
+    // Função para marcar despesa como paga
+    function adicionarEventosBaixa() {
+      document.querySelectorAll(".baixar").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          if (!confirm("Deseja marcar esta despesa como paga?")) return;
+          await updateDoc(doc(db, "transacoes", id), { pago: true });
+        });
+      });
+    }
 
-    // Fallback caso snapshot falhe
-    getDocs(q).then(snapshot => atualizarInterface(snapshot));
+    // Escuta alterações em tempo real
+    onSnapshot(collection(db, "transacoes"), (snapshot) => atualizarInterface(snapshot));
 
     feather.replace();
   </script>
