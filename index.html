@@ -3,112 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MoneyMagnet | Gestão Financeira</title>
+  <title>Rossetti | Gestão Financeira</title>
 
-  <!-- TailwindCSS + Feather Icons + Chart.js -->
+  <!-- Tailwind + Feather + Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
-    .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .ativo { background-color: #2563eb !important; color: white !important; }
-  </style>
 </head>
-<body class="p-6">
-  <h1 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-    <i data-feather="bar-chart-2"></i> MoneyMagnet | Gestão Financeira
-  </h1>
 
-  <!-- Formulário -->
-  <div class="card mb-6">
-    <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4">
-      <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded" required>
-      <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" required>
-      <select id="tipo" class="border p-2 rounded" required>
-        <option value="">Tipo</option>
-        <option value="receita">Receita</option>
-        <option value="despesa">Despesa</option>
-      </select>
-      <select id="formaPagamento" class="border p-2 rounded" required>
-        <option value="">Forma de Pagamento</option>
-        <option value="Pix">Pix</option>
-        <option value="Cartão">Cartão</option>
-        <option value="Boleto">Boleto</option>
-        <option value="Dinheiro">Dinheiro</option>
-        <option value="Transferência">Transferência</option>
-      </select>
-      <input type="date" id="dataMovimento" class="border p-2 rounded" disabled>
-      <input type="date" id="dataVencimento" class="border p-2 rounded" disabled>
-      <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700 col-span-full md:col-span-1">Salvar</button>
-    </form>
-  </div>
-
-  <!-- Filtros -->
-  <div class="flex gap-2 mb-4">
-    <button id="filtroTodas" class="border px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 ativo">Todas</button>
-    <button id="filtroAbertas" class="border px-4 py-2 rounded bg-gray-100 hover:bg-gray-200">Em Aberto</button>
-    <button id="filtroPagas" class="border px-4 py-2 rounded bg-gray-100 hover:bg-gray-200">Pagas</button>
-  </div>
-
-  <!-- Resumo -->
-  <div class="grid md:grid-cols-3 gap-4 mb-6">
-    <div class="card text-center">
-      <h2 id="totalReceitas" class="text-lg font-semibold text-green-700">Receitas: R$ 0,00</h2>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navbar -->
+  <nav class="bg-indigo-700 text-white p-4 shadow">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">💰 Controle Financeiro Rossetti</h1>
+      <a href="#" class="hover:underline">Dashboard</a>
     </div>
-    <div class="card text-center">
-      <h2 id="totalDespesas" class="text-lg font-semibold text-red-700">Despesas: R$ 0,00</h2>
-    </div>
-    <div class="card text-center">
-      <h2 id="saldoFinal" class="text-lg font-semibold text-blue-700">Saldo: R$ 0,00</h2>
-    </div>
-  </div>
+  </nav>
 
-  <!-- Gráfico -->
-  <div class="card mb-6">
-    <canvas id="grafico" style="max-height: 260px;"></canvas>
-  </div>
-
-  <!-- Tabelas -->
-  <div class="grid md:grid-cols-2 gap-6">
-    <div class="card">
-      <h3 class="text-xl font-bold mb-3 text-green-700">Receitas</h3>
-      <table id="tabelaReceitas" class="w-full text-sm">
-        <thead class="bg-green-100">
-          <tr>
-            <th class="p-2">Descrição</th>
-            <th class="p-2">Valor</th>
-            <th class="p-2">Forma</th>
-            <th class="p-2">Data</th>
-            <th class="p-2">Inclusão</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+  <!-- Conteúdo principal -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-800">Painel Financeiro</h2>
+        <p class="text-gray-600">Controle completo de receitas e despesas</p>
+      </div>
     </div>
 
-    <div class="card">
-      <h3 class="text-xl font-bold mb-3 text-red-700">Despesas</h3>
-      <table id="tabelaDespesas" class="w-full text-sm">
-        <thead class="bg-red-100">
-          <tr>
-            <th class="p-2">Descrição</th>
-            <th class="p-2">Valor</th>
-            <th class="p-2">Forma</th>
-            <th class="p-2">Vencimento</th>
-            <th class="p-2">Status</th>
-            <th class="p-2">Baixa</th>
-            <th class="p-2">Ação</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
+    <!-- Formulário -->
+    <div class="bg-white p-6 rounded-xl shadow mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
+      <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-2" />
+        <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
 
-  <!-- Firebase + Script -->
+        <select id="tipo" class="border p-2 rounded">
+          <option value="">Tipo</option>
+          <option value="receita">Receita</option>
+          <option value="despesa">Despesa</option>
+        </select>
+
+        <select id="formaPagamento" class="border p-2 rounded hidden">
+          <option value="">Forma de Pagamento</option>
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Cartão">Cartão</option>
+          <option value="Boleto">Boleto</option>
+          <option value="Transferência">Transferência</option>
+        </select>
+
+        <input type="date" id="dataMovimento" class="border p-2 rounded bg-gray-100" disabled />
+        <input type="date" id="dataVencimento" class="border p-2 rounded bg-gray-100" disabled />
+
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+          <i data-feather="plus" class="inline w-4 h-4 mr-1"></i>Salvar
+        </button>
+      </form>
+    </div>
+
+    <!-- Relatório financeiro -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold" id="totalReceitas">Receitas: R$ 0,00</div>
+      <div class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold" id="totalDespesas">Despesas: R$ 0,00</div>
+      <div class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold" id="saldoFinal">Saldo: R$ 0,00</div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="bg-white p-6 rounded-xl shadow mb-8">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Relatório de Receitas e Despesas</h3>
+      <canvas id="grafico" height="30" style="max-width:300px; margin:auto;"></canvas>
+    </div>
+
+    <!-- TABELAS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Tabela Receitas -->
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="text-xl font-semibold mb-4 text-green-700">Receitas</h3>
+        <div class="overflow-x-auto">
+          <table id="tabelaReceitas" class="w-full text-left border">
+            <thead>
+              <tr class="bg-gray-200 text-gray-700">
+                <th class="p-2">Descrição</th>
+                <th class="p-2">Valor</th>
+                <th class="p-2">Movimento</th>
+                <th class="p-2">Inclusão</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tabela Despesas -->
+      <div class="bg-white p-6 rounded-xl shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-red-700">Despesas</h3>
+          <div class="space-x-2">
+            <button id="filtroTodas" class="px-3 py-1 bg-indigo-600 text-white rounded">Todas</button>
+            <button id="filtroAbertas" class="px-3 py-1 bg-yellow-500 text-white rounded">Em Aberto</button>
+            <button id="filtroPagas" class="px-3 py-1 bg-green-600 text-white rounded">Pagas</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table id="tabelaDespesas" class="w-full text-left border">
+            <thead>
+              <tr class="bg-gray-200 text-gray-700">
+                <th class="p-2">Descrição</th>
+                <th class="p-2">Valor</th>
+                <th class="p-2">Vencimento</th>
+                <th class="p-2">Forma</th>
+                <th class="p-2">Status</th>
+                <th class="p-2">Baixa</th>
+                <th class="p-2 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
@@ -129,18 +144,17 @@
 
     const form = document.getElementById("formTransacao");
     const tipoSelect = document.getElementById("tipo");
-    const formaPagamentoSelect = document.getElementById("formaPagamento");
+    const formaPag = document.getElementById("formaPagamento");
     const dataMov = document.getElementById("dataMovimento");
     const dataVenc = document.getElementById("dataVencimento");
     const valorInput = document.getElementById("valor");
     const graficoCanvas = document.getElementById("grafico");
     const tabelaReceitas = document.getElementById("tabelaReceitas").querySelector("tbody");
     const tabelaDespesas = document.getElementById("tabelaDespesas").querySelector("tbody");
-
     let grafico;
     let filtroStatus = "todas";
-    let cacheSnapshot = [];
 
+    // Máscara valor
     valorInput.addEventListener("input", () => {
       let v = valorInput.value.replace(/\D/g, "");
       v = (v / 100).toFixed(2) + "";
@@ -163,27 +177,31 @@
       const tipo = tipoSelect.value;
       const hoje = new Date().toISOString().split("T")[0];
       if (tipo === "receita") {
+        formaPag.classList.add("hidden");
         dataMov.disabled = false; dataMov.value = hoje;
         dataVenc.disabled = true; dataVenc.value = "";
       } else if (tipo === "despesa") {
+        formaPag.classList.remove("hidden");
         dataVenc.disabled = false; dataVenc.value = hoje;
         dataMov.disabled = true; dataMov.value = "";
       } else {
+        formaPag.classList.add("hidden");
         dataMov.disabled = true; dataVenc.disabled = true;
         dataMov.value = ""; dataVenc.value = "";
       }
     });
 
+    // Salvar transação
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
       const valor = parseFloat(valorInput.value.replace(/\./g, "").replace(",", "."));
       const tipo = tipoSelect.value;
-      const formaPagamento = formaPagamentoSelect.value;
+      const formaPagamento = formaPag.classList.contains("hidden") ? "" : formaPag.value;
       const dataMovimento = dataMov.value ? toBrDate(dataMov.value) : "";
       const dataVencimento = dataVenc.value ? toBrDate(dataVenc.value) : "";
 
-      if (!descricao || isNaN(valor) || !tipo || !formaPagamento) {
+      if (!descricao || isNaN(valor) || !tipo || (tipo === "despesa" && !formaPagamento)) {
         alert("Preencha todos os campos corretamente!");
         return;
       }
@@ -194,15 +212,17 @@
         pago: false, dataPagamento: "", dataInclusao: serverTimestamp()
       });
 
-      form.reset(); dataMov.disabled = true; dataVenc.disabled = true;
+      form.reset();
+      formaPag.classList.add("hidden");
+      dataMov.disabled = true; dataVenc.disabled = true;
     });
 
-    function atualizarInterface(snapshotDocs) {
+    function atualizarInterface(snapshot) {
       tabelaReceitas.innerHTML = "";
       tabelaDespesas.innerHTML = "";
       let receitas = 0, despesas = 0;
 
-      snapshotDocs.forEach(docSnap => {
+      snapshot.forEach(docSnap => {
         const t = docSnap.data();
         const id = docSnap.id;
         const valorFmt = t.valor ? t.valor.toFixed(2).replace(".", ",") : "0,00";
@@ -213,13 +233,11 @@
             <tr class="border-b hover:bg-gray-50">
               <td class="p-2">${t.descricao}</td>
               <td class="p-2">R$ ${valorFmt}</td>
-              <td class="p-2">${t.formaPagamento || "-"}</td>
               <td class="p-2">${t.dataMovimento || "-"}</td>
               <td class="p-2">${t.dataInclusao ? new Date(t.dataInclusao.seconds * 1000).toLocaleDateString("pt-BR") : "-"}</td>
             </tr>`;
         } else if (t.tipo === "despesa") {
           despesas += t.valor || 0;
-
           if (
             filtroStatus === "todas" ||
             (filtroStatus === "abertas" && !t.pago) ||
@@ -229,10 +247,10 @@
               <tr class="border-b hover:bg-gray-50">
                 <td class="p-2">${t.descricao}</td>
                 <td class="p-2">R$ ${valorFmt}</td>
-                <td class="p-2">${t.formaPagamento || "-"}</td>
                 <td class="p-2">${t.dataVencimento || "-"}</td>
+                <td class="p-2">${t.formaPagamento || "-"}</td>
                 <td class="p-2 text-center">${t.pago ? "✅ Pago" : "⏳ Em aberto"}</td>
-                <td class="p-2 text-gray-600">${t.dataPagamento || "-"}</td>
+                <td class="p-2">${t.dataPagamento || "-"}</td>
                 <td class="p-2 text-center">
                   ${!t.pago ? `<button data-id="${id}" class="baixar bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Baixar</button>` : ""}
                 </td>
@@ -262,37 +280,25 @@
       document.querySelectorAll(".baixar").forEach(btn => {
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-id");
-          if (!confirm("Deseja marcar esta despesa como paga?")) return;
+          let formaPagamento = prompt("Informe a forma de pagamento (Pix, Dinheiro, Cartão, Boleto, Transferência):");
+          if (!formaPagamento) return alert("Operação cancelada. Forma de pagamento obrigatória.");
+          formaPagamento = formaPagamento.trim();
+          if (!confirm(`Deseja marcar esta despesa como paga via ${formaPagamento}?`)) return;
           await updateDoc(doc(db, "transacoes", id), {
-            pago: true, dataPagamento: hojeBr()
+            pago: true,
+            formaPagamento,
+            dataPagamento: hojeBr()
           });
         });
       });
     }
 
-    function ativarBotao(botaoId) {
-      document.querySelectorAll(".ativo").forEach(b => b.classList.remove("ativo"));
-      document.getElementById(botaoId).classList.add("ativo");
-    }
+    // Filtros
+    document.getElementById("filtroTodas").onclick = () => { filtroStatus = "todas"; };
+    document.getElementById("filtroAbertas").onclick = () => { filtroStatus = "abertas"; };
+    document.getElementById("filtroPagas").onclick = () => { filtroStatus = "pagas"; };
 
-    document.getElementById("filtroTodas").onclick = () => {
-      filtroStatus = "todas"; ativarBotao("filtroTodas");
-      atualizarInterface(cacheSnapshot);
-    };
-    document.getElementById("filtroAbertas").onclick = () => {
-      filtroStatus = "abertas"; ativarBotao("filtroAbertas");
-      atualizarInterface(cacheSnapshot);
-    };
-    document.getElementById("filtroPagas").onclick = () => {
-      filtroStatus = "pagas"; ativarBotao("filtroPagas");
-      atualizarInterface(cacheSnapshot);
-    };
-
-    onSnapshot(collection(db, "transacoes"), (snapshot) => {
-      cacheSnapshot = snapshot.docs;
-      atualizarInterface(cacheSnapshot);
-    });
-
+    onSnapshot(collection(db, "transacoes"), (snapshot) => atualizarInterface(snapshot));
     feather.replace();
   </script>
 </body>
