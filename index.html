@@ -9,6 +9,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .filtro-ativo { box-shadow: inset 0 -3px 0 0 #4f46e5; background-color: #eef2ff; }
+  </style>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
@@ -98,7 +102,7 @@
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-semibold text-red-700">Despesas</h3>
           <div class="space-x-2">
-            <button id="filtroTodas" class="px-3 py-1 bg-indigo-600 text-white rounded">Todas</button>
+            <button id="filtroTodas" class="px-3 py-1 bg-indigo-600 text-white rounded filtro-ativo">Todas</button>
             <button id="filtroAbertas" class="px-3 py-1 bg-yellow-500 text-white rounded">Em Aberto</button>
             <button id="filtroPagas" class="px-3 py-1 bg-green-600 text-white rounded">Pagas</button>
           </div>
@@ -151,8 +155,13 @@
     const graficoCanvas = document.getElementById("grafico");
     const tabelaReceitas = document.getElementById("tabelaReceitas").querySelector("tbody");
     const tabelaDespesas = document.getElementById("tabelaDespesas").querySelector("tbody");
+    const btnTodas = document.getElementById("filtroTodas");
+    const btnAbertas = document.getElementById("filtroAbertas");
+    const btnPagas = document.getElementById("filtroPagas");
+
     let grafico;
     let filtroStatus = "todas";
+    let cacheDocs = []; // guarda os documentos atuais do Firestore
 
     // Máscara valor
     valorInput.addEventListener("input", () => {
@@ -173,6 +182,7 @@
       return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth()+1).padStart(2, "0")}/${d.getFullYear()}`;
     }
 
+    // Mostrar/ocultar forma de pagamento apenas para despesa
     tipoSelect.addEventListener("change", () => {
       const tipo = tipoSelect.value;
       const hoje = new Date().toISOString().split("T")[0];
@@ -217,12 +227,13 @@
       dataMov.disabled = true; dataVenc.disabled = true;
     });
 
-    function atualizarInterface(snapshot) {
+    // Rendeiza usando array de docs (cacheDocs) ou QuerySnapshot — ambos suportam forEach
+    function atualizarInterface(docs) {
       tabelaReceitas.innerHTML = "";
       tabelaDespesas.innerHTML = "";
       let receitas = 0, despesas = 0;
 
-      snapshot.forEach(docSnap => {
+      docs.forEach(docSnap => {
         const t = docSnap.data();
         const id = docSnap.id;
         const valorFmt = t.valor ? t.valor.toFixed(2).replace(".", ",") : "0,00";
@@ -238,11 +249,14 @@
             </tr>`;
         } else if (t.tipo === "despesa") {
           despesas += t.valor || 0;
-          if (
+
+          // aplica filtro atual
+          const mostrar =
             filtroStatus === "todas" ||
             (filtroStatus === "abertas" && !t.pago) ||
-            (filtroStatus === "pagas" && t.pago)
-          ) {
+            (filtroStatus === "pagas" && t.pago);
+
+          if (mostrar) {
             tabelaDespesas.innerHTML += `
               <tr class="border-b hover:bg-gray-50">
                 <td class="p-2">${t.descricao}</td>
@@ -293,12 +307,26 @@
       });
     }
 
-    // Filtros
-    document.getElementById("filtroTodas").onclick = () => { filtroStatus = "todas"; };
-    document.getElementById("filtroAbertas").onclick = () => { filtroStatus = "abertas"; };
-    document.getElementById("filtroPagas").onclick = () => { filtroStatus = "pagas"; };
+    function setFiltro(novoFiltro, botao) {
+      filtroStatus = novoFiltro;
+      // destaque visual do botão ativo
+      [btnTodas, btnAbertas, btnPagas].forEach(b => b.classList.remove("filtro-ativo"));
+      botao.classList.add("filtro-ativo");
+      // re-renderiza usando o cache
+      atualizarInterface(cacheDocs);
+    }
 
-    onSnapshot(collection(db, "transacoes"), (snapshot) => atualizarInterface(snapshot));
+    // configurações dos botões de filtro — agora chamam setFiltro para re-renderizar
+    btnTodas.addEventListener("click", () => setFiltro("todas", btnTodas));
+    btnAbertas.addEventListener("click", () => setFiltro("abertas", btnAbertas));
+    btnPagas.addEventListener("click", () => setFiltro("pagas", btnPagas));
+
+    // ouvinte do Firestore — atualiza cache e re-renderiza
+    onSnapshot(collection(db, "transacoes"), (snapshot) => {
+      cacheDocs = snapshot.docs; // array de QueryDocumentSnapshot
+      atualizarInterface(cacheDocs);
+    });
+
     feather.replace();
   </script>
 </body>
