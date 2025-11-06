@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MoneyMagnet | Gestão Financeira</title>
 
-  <!-- TailwindCSS + Feather Icons + Chart.js -->
+  <!-- Tailwind + Feather + Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -34,7 +34,6 @@
       <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
       <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4">
         <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-2" />
-        
         <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
 
         <select id="tipo" class="border p-2 rounded">
@@ -54,15 +53,9 @@
 
     <!-- Relatório financeiro -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold" id="totalReceitas">
-        Receitas: R$ 0,00
-      </div>
-      <div class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold" id="totalDespesas">
-        Despesas: R$ 0,00
-      </div>
-      <div class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold" id="saldoFinal">
-        Saldo: R$ 0,00
-      </div>
+      <div class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold" id="totalReceitas">Receitas: R$ 0,00</div>
+      <div class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold" id="totalDespesas">Despesas: R$ 0,00</div>
+      <div class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold" id="saldoFinal">Saldo: R$ 0,00</div>
     </div>
 
     <!-- Gráfico -->
@@ -71,24 +64,44 @@
       <canvas id="grafico" height="30" style="max-width:300px; margin:auto;"></canvas>
     </div>
 
-    <!-- Tabela -->
-    <div class="bg-white p-6 rounded-xl shadow">
-      <h3 class="text-xl font-semibold mb-4 text-gray-800">Transações</h3>
-      <div class="overflow-x-auto">
-        <table id="tabelaTransacoes" class="w-full text-left border">
-          <thead>
-            <tr class="bg-gray-200 text-gray-700">
-              <th class="p-2">Descrição</th>
-              <th class="p-2">Tipo</th>
-              <th class="p-2">Valor (R$)</th>
-              <th class="p-2">Movimento</th>
-              <th class="p-2">Vencimento</th>
-              <th class="p-2">Status</th>
-              <th class="p-2 text-center">Ações</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+    <!-- TABELAS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Tabela Receitas -->
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="text-xl font-semibold mb-4 text-green-700">💚 Receitas</h3>
+        <div class="overflow-x-auto">
+          <table id="tabelaReceitas" class="w-full text-left border">
+            <thead>
+              <tr class="bg-gray-200 text-gray-700">
+                <th class="p-2">Descrição</th>
+                <th class="p-2">Valor</th>
+                <th class="p-2">Movimento</th>
+                <th class="p-2">Inclusão</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tabela Despesas -->
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="text-xl font-semibold mb-4 text-red-700">❤️ Despesas</h3>
+        <div class="overflow-x-auto">
+          <table id="tabelaDespesas" class="w-full text-left border">
+            <thead>
+              <tr class="bg-gray-200 text-gray-700">
+                <th class="p-2">Descrição</th>
+                <th class="p-2">Valor</th>
+                <th class="p-2">Vencimento</th>
+                <th class="p-2">Status</th>
+                <th class="p-2">Data da Baixa</th>
+                <th class="p-2 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>
@@ -100,7 +113,6 @@
       getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // 🔧 Configuração Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBKL1wKzXRmQl75S1L0JwEzsT_UPtoLq5o",
       authDomain: "moneymagnet-financeiro.firebaseapp.com",
@@ -114,15 +126,16 @@
     const db = getFirestore(app);
 
     const form = document.getElementById("formTransacao");
-    const tabela = document.getElementById("tabelaTransacoes").querySelector("tbody");
     const tipoSelect = document.getElementById("tipo");
     const dataMov = document.getElementById("dataMovimento");
     const dataVenc = document.getElementById("dataVencimento");
     const valorInput = document.getElementById("valor");
     const graficoCanvas = document.getElementById("grafico");
+    const tabelaReceitas = document.getElementById("tabelaReceitas").querySelector("tbody");
+    const tabelaDespesas = document.getElementById("tabelaDespesas").querySelector("tbody");
     let grafico;
 
-    // Máscara de valor com milhar
+    // Máscara valor
     valorInput.addEventListener("input", () => {
       let v = valorInput.value.replace(/\D/g, "");
       v = (v / 100).toFixed(2) + "";
@@ -131,39 +144,29 @@
       valorInput.value = v;
     });
 
-    // Converter AAAA-MM-DD → DD/MM/AAAA
+    // Conversões de data
     function toBrDate(dateStr) {
       if (!dateStr) return "";
       const [yyyy, mm, dd] = dateStr.split("-");
       return `${dd}/${mm}/${yyyy}`;
     }
-
-    // Converter DD/MM/AAAA → AAAA-MM-DD
-    function toIsoDate(dateStr) {
-      if (!dateStr) return "";
-      const [dd, mm, yyyy] = dateStr.split("/");
-      return `${yyyy}-${mm}-${dd}`;
+    function hojeBr() {
+      const d = new Date();
+      return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth()+1).padStart(2, "0")}/${d.getFullYear()}`;
     }
 
-    // Habilitar campos conforme tipo
     tipoSelect.addEventListener("change", () => {
       const tipo = tipoSelect.value;
       const hoje = new Date().toISOString().split("T")[0];
       if (tipo === "receita") {
-        dataMov.disabled = false;
-        dataMov.value = hoje;
-        dataVenc.disabled = true;
-        dataVenc.value = "";
+        dataMov.disabled = false; dataMov.value = hoje;
+        dataVenc.disabled = true; dataVenc.value = "";
       } else if (tipo === "despesa") {
-        dataVenc.disabled = false;
-        dataVenc.value = hoje;
-        dataMov.disabled = true;
-        dataMov.value = "";
+        dataVenc.disabled = false; dataVenc.value = hoje;
+        dataMov.disabled = true; dataMov.value = "";
       } else {
-        dataMov.disabled = true;
-        dataVenc.disabled = true;
-        dataMov.value = "";
-        dataVenc.value = "";
+        dataMov.disabled = true; dataVenc.disabled = true;
+        dataMov.value = ""; dataVenc.value = "";
       }
     });
 
@@ -182,52 +185,46 @@
       }
 
       await addDoc(collection(db, "transacoes"), {
-        descricao,
-        valor,
-        tipo,
-        dataMovimento,
-        dataVencimento,
-        pago: false,
-        dataInclusao: serverTimestamp()
+        descricao, valor, tipo, dataMovimento, dataVencimento,
+        pago: false, dataPagamento: "", dataInclusao: serverTimestamp()
       });
 
-      form.reset();
-      dataMov.disabled = true;
-      dataVenc.disabled = true;
+      form.reset(); dataMov.disabled = true; dataVenc.disabled = true;
     });
 
-    // Atualiza a tabela
     function atualizarInterface(snapshot) {
-      tabela.innerHTML = "";
+      tabelaReceitas.innerHTML = "";
+      tabelaDespesas.innerHTML = "";
       let receitas = 0, despesas = 0;
 
       snapshot.forEach(docSnap => {
         const t = docSnap.data();
         const id = docSnap.id;
-
-        const linha = document.createElement("tr");
-        linha.className = "border-b hover:bg-gray-50";
-
         const valorFmt = t.valor ? t.valor.toFixed(2).replace(".", ",") : "0,00";
-        if (t.tipo === "receita") receitas += t.valor || 0;
-        if (t.tipo === "despesa") despesas += t.valor || 0;
 
-        linha.innerHTML = `
-          <td class="p-2">${t.descricao}</td>
-          <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo}</td>
-          <td class="p-2">R$ ${valorFmt}</td>
-          <td class="p-2 text-gray-600">${t.dataMovimento || "-"}</td>
-          <td class="p-2 text-gray-600">${t.dataVencimento || "-"}</td>
-          <td class="p-2 text-center">${t.tipo === "despesa"
-            ? (t.pago ? "✅ Pago" : "⏳ Em aberto")
-            : "—"}</td>
-          <td class="p-2 text-center">
-            ${t.tipo === "despesa" && !t.pago
-              ? `<button data-id="${id}" class="baixar bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Baixar</button>`
-              : ""}
-          </td>
-        `;
-        tabela.appendChild(linha);
+        if (t.tipo === "receita") {
+          receitas += t.valor || 0;
+          tabelaReceitas.innerHTML += `
+            <tr class="border-b hover:bg-gray-50">
+              <td class="p-2">${t.descricao}</td>
+              <td class="p-2">R$ ${valorFmt}</td>
+              <td class="p-2">${t.dataMovimento || "-"}</td>
+              <td class="p-2">${t.dataInclusao ? new Date(t.dataInclusao.seconds * 1000).toLocaleDateString("pt-BR") : "-"}</td>
+            </tr>`;
+        } else if (t.tipo === "despesa") {
+          despesas += t.valor || 0;
+          tabelaDespesas.innerHTML += `
+            <tr class="border-b hover:bg-gray-50">
+              <td class="p-2">${t.descricao}</td>
+              <td class="p-2">R$ ${valorFmt}</td>
+              <td class="p-2">${t.dataVencimento || "-"}</td>
+              <td class="p-2 text-center">${t.pago ? "✅ Pago" : "⏳ Em aberto"}</td>
+              <td class="p-2 text-gray-600">${t.dataPagamento || "-"}</td>
+              <td class="p-2 text-center">
+                ${!t.pago ? `<button data-id="${id}" class="baixar bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Baixar</button>` : ""}
+              </td>
+            </tr>`;
+        }
       });
 
       document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2).replace(".", ",")}`;
@@ -238,36 +235,28 @@
       adicionarEventosBaixa();
     }
 
-    // Gráfico
     function atualizarGrafico(receitas, despesas) {
       if (grafico) grafico.destroy();
       grafico = new Chart(graficoCanvas, {
         type: "doughnut",
-        data: {
-          labels: ["Receitas", "Despesas"],
-          datasets: [{
-            data: [receitas, despesas],
-            backgroundColor: ["#16a34a", "#dc2626"]
-          }]
-        },
+        data: { labels: ["Receitas", "Despesas"], datasets: [{ data: [receitas, despesas], backgroundColor: ["#16a34a", "#dc2626"] }] },
         options: { plugins: { legend: { position: "bottom" } } }
       });
     }
 
-    // Baixa de despesa
     function adicionarEventosBaixa() {
       document.querySelectorAll(".baixar").forEach(btn => {
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-id");
           if (!confirm("Deseja marcar esta despesa como paga?")) return;
-          await updateDoc(doc(db, "transacoes", id), { pago: true });
+          await updateDoc(doc(db, "transacoes", id), {
+            pago: true, dataPagamento: hojeBr()
+          });
         });
       });
     }
 
-    // Escuta o banco em tempo real
     onSnapshot(collection(db, "transacoes"), (snapshot) => atualizarInterface(snapshot));
-
     feather.replace();
   </script>
 </body>
