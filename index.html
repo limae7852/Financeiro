@@ -34,7 +34,7 @@
       <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
       <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-1 md:col-span-2" />
-        <input type="number" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
+        <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
         <select id="tipo" class="border p-2 rounded">
           <option value="">Tipo</option>
           <option value="receita">Receita</option>
@@ -112,13 +112,27 @@
     const form = document.getElementById("formTransacao");
     const tabela = document.getElementById("tabelaTransacoes").querySelector("tbody");
     const graficoCanvas = document.getElementById("grafico");
+    const inputValor = document.getElementById("valor");
     let grafico;
+
+    // 💡 Formatação automática de milhar no campo valor
+    inputValor.addEventListener("input", () => {
+      let valor = inputValor.value.replace(/[^\d,]/g, "").replace(",", ".");
+      if (!isNaN(valor) && valor.trim() !== "") {
+        const numero = parseFloat(valor);
+        inputValor.value = numero.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+    });
 
     // Adiciona nova transação
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
-      const valor = parseFloat(document.getElementById("valor").value);
+      const valorTexto = inputValor.value.replace(/\./g, "").replace(",", ".");
+      const valor = parseFloat(valorTexto);
       const tipo = document.getElementById("tipo").value;
       const vencimento = document.getElementById("vencimento").value;
 
@@ -156,11 +170,14 @@
           ? new Date(t.vencimento).toLocaleDateString("pt-BR")
           : "—";
 
+        // 🔥 Verifica se o vencimento está atrasado
+        const vencido = t.vencimento && new Date(t.vencimento) < new Date();
+
         const linha = `
-          <tr class="border-b hover:bg-gray-50">
+          <tr class="border-b hover:bg-gray-50 ${vencido ? 'bg-red-100' : ''}">
             <td class="p-2">${t.descricao || "(sem descrição)"}</td>
             <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo || "—"}</td>
-            <td class="p-2">${t.valor ? t.valor.toFixed(2) : "0.00"}</td>
+            <td class="p-2">${t.valor ? t.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00"}</td>
             <td class="p-2 text-gray-600">${dataVencimento}</td>
             <td class="p-2 text-gray-600">${dataInclusao}</td>
           </tr>
@@ -172,9 +189,9 @@
       });
 
       // Atualiza totais
-      document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toFixed(2)}`;
-      document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toFixed(2)}`;
-      document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toFixed(2)}`;
+      document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+      document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+      document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
       // Atualiza gráfico
       atualizarGrafico(receitas, despesas);
