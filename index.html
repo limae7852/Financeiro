@@ -32,15 +32,20 @@
     <!-- Formulário -->
     <div class="bg-white p-6 rounded-xl shadow mb-8">
       <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
-      <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4">
         <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-1 md:col-span-2" />
         <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
+        
         <select id="tipo" class="border p-2 rounded">
           <option value="">Tipo</option>
           <option value="receita">Receita</option>
           <option value="despesa">Despesa</option>
         </select>
-        <input type="date" id="vencimento" class="border p-2 rounded" title="Data de vencimento" />
+
+        <!-- Campos condicionais -->
+        <input type="date" id="dataMovimento" class="border p-2 rounded hidden" title="Data de Movimento" />
+        <input type="date" id="vencimento" class="border p-2 rounded hidden" title="Data de Vencimento" />
+
         <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
           <i data-feather="plus" class="inline w-4 h-4 mr-1"></i>Salvar
         </button>
@@ -76,8 +81,9 @@
               <th class="p-2">Descrição</th>
               <th class="p-2">Tipo</th>
               <th class="p-2">Valor (R$)</th>
-              <th class="p-2">Data de Vencimento</th>
-              <th class="p-2">Data de Inclusão</th>
+              <th class="p-2">Data Movimento</th>
+              <th class="p-2">Data Vencimento</th>
+              <th class="p-2">Data Inclusão</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -113,9 +119,37 @@
     const tabela = document.getElementById("tabelaTransacoes").querySelector("tbody");
     const graficoCanvas = document.getElementById("grafico");
     const inputValor = document.getElementById("valor");
+    const inputTipo = document.getElementById("tipo");
+    const inputVencimento = document.getElementById("vencimento");
+    const inputMovimento = document.getElementById("dataMovimento");
     let grafico;
 
-    // 💡 Formatação automática de milhar no campo valor
+    // 💡 Exibir/ocultar campos conforme o tipo
+    inputTipo.addEventListener("change", () => {
+      if (inputTipo.value === "receita") {
+        inputMovimento.classList.remove("hidden");
+        inputVencimento.classList.add("hidden");
+        inputMovimento.disabled = false;
+        inputVencimento.disabled = true;
+        inputVencimento.value = "";
+        inputMovimento.focus();
+      } else if (inputTipo.value === "despesa") {
+        inputVencimento.classList.remove("hidden");
+        inputMovimento.classList.add("hidden");
+        inputVencimento.disabled = false;
+        inputMovimento.disabled = true;
+        inputMovimento.value = "";
+
+        // destaque visual no campo vencimento
+        inputVencimento.classList.add("border-red-500", "bg-red-50");
+        inputVencimento.focus();
+      } else {
+        inputMovimento.classList.add("hidden");
+        inputVencimento.classList.add("hidden");
+      }
+    });
+
+    // 💰 Formatação automática de milhar no campo valor
     inputValor.addEventListener("input", () => {
       let valor = inputValor.value.replace(/[^\d,]/g, "").replace(",", ".");
       if (!isNaN(valor) && valor.trim() !== "") {
@@ -133,8 +167,9 @@
       const descricao = document.getElementById("descricao").value.trim();
       const valorTexto = inputValor.value.replace(/\./g, "").replace(",", ".");
       const valor = parseFloat(valorTexto);
-      const tipo = document.getElementById("tipo").value;
-      const vencimento = document.getElementById("vencimento").value;
+      const tipo = inputTipo.value;
+      const vencimento = inputVencimento.value;
+      const dataMovimento = inputMovimento.value;
 
       if (!descricao || isNaN(valor) || !tipo) {
         alert("Preencha todos os campos corretamente!");
@@ -146,10 +181,13 @@
         valor,
         tipo,
         vencimento: vencimento || null,
+        dataMovimento: dataMovimento || null,
         data: serverTimestamp()
       });
 
       form.reset();
+      inputVencimento.classList.add("hidden");
+      inputMovimento.classList.add("hidden");
     });
 
     // Função para renderizar dados
@@ -166,6 +204,10 @@
           dataInclusao = d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
         }
 
+        const dataMovimento = t.dataMovimento
+          ? new Date(t.dataMovimento).toLocaleDateString("pt-BR")
+          : "—";
+
         const dataVencimento = t.vencimento
           ? new Date(t.vencimento).toLocaleDateString("pt-BR")
           : "—";
@@ -178,6 +220,7 @@
             <td class="p-2">${t.descricao || "(sem descrição)"}</td>
             <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo || "—"}</td>
             <td class="p-2">${t.valor ? t.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00"}</td>
+            <td class="p-2 text-gray-600">${dataMovimento}</td>
             <td class="p-2 text-gray-600">${dataVencimento}</td>
             <td class="p-2 text-gray-600">${dataInclusao}</td>
           </tr>
@@ -223,9 +266,7 @@
       carregarTransacoes(snapshot);
     });
 
-    // Fallback (caso snapshot falhe)
     getDocs(collection(db, "transacoes")).then(snapshot => carregarTransacoes(snapshot));
-
     feather.replace();
   </script>
 </body>
