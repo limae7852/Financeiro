@@ -97,11 +97,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, getDocs, onSnapshot, updateDoc, doc,
-      serverTimestamp
+      getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // 🔧 CONFIGURAÇÃO DO FIREBASE
+    // 🔧 Configuração Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBKL1wKzXRmQl75S1L0JwEzsT_UPtoLq5o",
       authDomain: "moneymagnet-financeiro.firebaseapp.com",
@@ -111,11 +110,9 @@
       appId: "1:861048650591:web:7d62142069a213b67b14ea"
     };
 
-    // Inicializa o app e Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Referências de elementos
     const form = document.getElementById("formTransacao");
     const tabela = document.getElementById("tabelaTransacoes").querySelector("tbody");
     const tipoSelect = document.getElementById("tipo");
@@ -125,7 +122,7 @@
     const graficoCanvas = document.getElementById("grafico");
     let grafico;
 
-    // 💰 Máscara para valor com milhar
+    // Máscara de valor com milhar
     valorInput.addEventListener("input", () => {
       let v = valorInput.value.replace(/\D/g, "");
       v = (v / 100).toFixed(2) + "";
@@ -134,21 +131,32 @@
       valorInput.value = v;
     });
 
-    // Habilitar campos conforme o tipo
+    // Converter AAAA-MM-DD → DD/MM/AAAA
+    function toBrDate(dateStr) {
+      if (!dateStr) return "";
+      const [yyyy, mm, dd] = dateStr.split("-");
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    // Converter DD/MM/AAAA → AAAA-MM-DD
+    function toIsoDate(dateStr) {
+      if (!dateStr) return "";
+      const [dd, mm, yyyy] = dateStr.split("/");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Habilitar campos conforme tipo
     tipoSelect.addEventListener("change", () => {
       const tipo = tipoSelect.value;
       const hoje = new Date().toISOString().split("T")[0];
-
       if (tipo === "receita") {
         dataMov.disabled = false;
         dataMov.value = hoje;
         dataVenc.disabled = true;
         dataVenc.value = "";
-        dataVenc.classList.remove("border-red-400");
       } else if (tipo === "despesa") {
         dataVenc.disabled = false;
         dataVenc.value = hoje;
-        dataVenc.classList.add("border-red-400");
         dataMov.disabled = true;
         dataMov.value = "";
       } else {
@@ -156,18 +164,17 @@
         dataVenc.disabled = true;
         dataMov.value = "";
         dataVenc.value = "";
-        dataVenc.classList.remove("border-red-400");
       }
     });
 
-    // Adiciona nova transação
+    // Salvar transação
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
       const valor = parseFloat(valorInput.value.replace(/\./g, "").replace(",", "."));
       const tipo = tipoSelect.value;
-      const dataMovimento = dataMov.value || null;
-      const dataVencimento = dataVenc.value || null;
+      const dataMovimento = dataMov.value ? toBrDate(dataMov.value) : "";
+      const dataVencimento = dataVenc.value ? toBrDate(dataVenc.value) : "";
 
       if (!descricao || isNaN(valor) || !tipo) {
         alert("Preencha todos os campos corretamente!");
@@ -189,7 +196,7 @@
       dataVenc.disabled = true;
     });
 
-    // Função para renderizar tabela e totais
+    // Atualiza a tabela
     function atualizarInterface(snapshot) {
       tabela.innerHTML = "";
       let receitas = 0, despesas = 0;
@@ -201,14 +208,14 @@
         const linha = document.createElement("tr");
         linha.className = "border-b hover:bg-gray-50";
 
-        const valor = t.valor ? t.valor.toFixed(2).replace(".", ",") : "0,00";
+        const valorFmt = t.valor ? t.valor.toFixed(2).replace(".", ",") : "0,00";
         if (t.tipo === "receita") receitas += t.valor || 0;
         if (t.tipo === "despesa") despesas += t.valor || 0;
 
         linha.innerHTML = `
           <td class="p-2">${t.descricao}</td>
           <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo}</td>
-          <td class="p-2">R$ ${valor}</td>
+          <td class="p-2">R$ ${valorFmt}</td>
           <td class="p-2 text-gray-600">${t.dataMovimento || "-"}</td>
           <td class="p-2 text-gray-600">${t.dataVencimento || "-"}</td>
           <td class="p-2 text-center">${t.tipo === "despesa"
@@ -231,7 +238,7 @@
       adicionarEventosBaixa();
     }
 
-    // Atualiza o gráfico
+    // Gráfico
     function atualizarGrafico(receitas, despesas) {
       if (grafico) grafico.destroy();
       grafico = new Chart(graficoCanvas, {
@@ -247,7 +254,7 @@
       });
     }
 
-    // Função para marcar despesa como paga
+    // Baixa de despesa
     function adicionarEventosBaixa() {
       document.querySelectorAll(".baixar").forEach(btn => {
         btn.addEventListener("click", async () => {
@@ -258,7 +265,7 @@
       });
     }
 
-    // Escuta alterações em tempo real
+    // Escuta o banco em tempo real
     onSnapshot(collection(db, "transacoes"), (snapshot) => atualizarInterface(snapshot));
 
     feather.replace();
