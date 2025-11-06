@@ -10,6 +10,7 @@
 </head>
 
 <body class="bg-gray-50 min-h-screen">
+  <!-- Navbar -->
   <nav class="bg-indigo-700 text-white p-4 shadow">
     <div class="container mx-auto flex justify-between items-center">
       <h1 class="text-2xl font-bold">💰 MoneyMagnet</h1>
@@ -28,7 +29,7 @@
     <!-- Formulário -->
     <div class="bg-white p-6 rounded-xl shadow mb-8">
       <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
-      <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+      <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
         <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-1 md:col-span-2" />
         <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" inputmode="decimal" />
         
@@ -40,6 +41,12 @@
 
         <input type="date" id="dataMovimento" class="border p-2 rounded hidden" />
         <input type="date" id="vencimento" class="border p-2 rounded hidden" />
+
+        <!-- Checkbox Despesa Paga -->
+        <div id="campoPago" class="flex items-center gap-2 hidden">
+          <input type="checkbox" id="pago" class="w-4 h-4">
+          <label for="pago" class="text-sm text-gray-700">Despesa Paga?</label>
+        </div>
 
         <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
           <i data-feather="plus" class="inline w-4 h-4 mr-1"></i>Salvar
@@ -72,6 +79,7 @@
               <th class="p-2">Valor (R$)</th>
               <th class="p-2">Data Movimento</th>
               <th class="p-2">Data Vencimento</th>
+              <th class="p-2">Pago?</th>
               <th class="p-2">Data Inclusão</th>
             </tr>
           </thead>
@@ -107,42 +115,44 @@
     const inputTipo = document.getElementById("tipo");
     const inputVencimento = document.getElementById("vencimento");
     const inputMovimento = document.getElementById("dataMovimento");
+    const campoPago = document.getElementById("campoPago");
+    const checkPago = document.getElementById("pago");
     let grafico;
 
-    // 🔁 Alterna entre os campos conforme o tipo
+    // Alterna entre campos conforme o tipo
     inputTipo.addEventListener("change", () => {
       if (inputTipo.value === "receita") {
         inputMovimento.classList.remove("hidden");
         inputVencimento.classList.add("hidden");
+        campoPago.classList.add("hidden");
         inputMovimento.disabled = false;
         inputVencimento.disabled = true;
-        inputVencimento.value = "";
+        campoPago.disabled = true;
       } else if (inputTipo.value === "despesa") {
         inputVencimento.classList.remove("hidden");
+        campoPago.classList.remove("hidden");
         inputMovimento.classList.add("hidden");
-        inputVencimento.disabled = false;
         inputMovimento.disabled = true;
-        inputMovimento.value = "";
+        inputVencimento.disabled = false;
+        campoPago.disabled = false;
         inputVencimento.classList.add("border-red-500", "bg-red-50");
       } else {
         inputMovimento.classList.add("hidden");
         inputVencimento.classList.add("hidden");
+        campoPago.classList.add("hidden");
       }
     });
 
-    // 💰 Formatação de valor (aplicada apenas ao sair do campo)
-    inputValor.addEventListener("blur", () => {
-      let valor = inputValor.value.replace(/\./g, "").replace(",", ".");
-      const numero = parseFloat(valor);
-      if (!isNaN(numero)) {
-        inputValor.value = numero.toLocaleString("pt-BR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-      }
+    // Máscara de valor em tempo real
+    inputValor.addEventListener("input", () => {
+      let valor = inputValor.value.replace(/\D/g, "");
+      valor = (parseInt(valor, 10) / 100).toFixed(2) + "";
+      valor = valor.replace(".", ",");
+      valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      inputValor.value = valor;
     });
 
-    // ✅ Enviar dados
+    // Enviar dados
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
@@ -151,6 +161,7 @@
       const tipo = inputTipo.value;
       const vencimento = inputVencimento.value;
       const dataMovimento = inputMovimento.value;
+      const pago = checkPago.checked;
 
       if (!descricao || isNaN(valor) || !tipo) {
         alert("Preencha todos os campos corretamente!");
@@ -163,18 +174,21 @@
         tipo,
         vencimento: vencimento || null,
         dataMovimento: dataMovimento || null,
+        pago,
         data: serverTimestamp()
       });
 
       form.reset();
       inputMovimento.classList.add("hidden");
       inputVencimento.classList.add("hidden");
+      campoPago.classList.add("hidden");
     });
 
-    // 🔎 Renderização
+    // Renderização
     function carregarTransacoes(snapshot) {
       tabela.innerHTML = "";
       let receitas = 0, despesas = 0;
+
       snapshot.forEach(doc => {
         const t = doc.data();
         let dataInclusao = "-";
@@ -190,6 +204,7 @@
             <td class="p-2">${t.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
             <td class="p-2">${t.dataMovimento ? new Date(t.dataMovimento).toLocaleDateString('pt-BR') : '—'}</td>
             <td class="p-2">${t.vencimento ? new Date(t.vencimento).toLocaleDateString('pt-BR') : '—'}</td>
+            <td class="p-2">${t.tipo === 'despesa' ? (t.pago ? '✅ Pago' : '❌ Em aberto') : '—'}</td>
             <td class="p-2">${dataInclusao}</td>
           </tr>`;
         tabela.innerHTML += linha;
@@ -205,7 +220,7 @@
       atualizarGrafico(receitas, despesas);
     }
 
-    // 🧁 Gráfico
+    // Gráfico
     function atualizarGrafico(receitas, despesas) {
       if (grafico) grafico.destroy();
       grafico = new Chart(document.getElementById("grafico"), {
