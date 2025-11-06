@@ -4,15 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MoneyMagnet | Gestão Financeira</title>
-
-  <!-- TailwindCSS + Feather Icons + Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
-  <!-- Navbar -->
   <nav class="bg-indigo-700 text-white p-4 shadow">
     <div class="container mx-auto flex justify-between items-center">
       <h1 class="text-2xl font-bold">💰 MoneyMagnet</h1>
@@ -20,7 +17,6 @@
     </div>
   </nav>
 
-  <!-- Conteúdo principal -->
   <main class="container mx-auto px-4 py-8">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
       <div>
@@ -34,7 +30,7 @@
       <h3 class="text-xl font-semibold mb-4 text-gray-800">Nova Transação</h3>
       <form id="formTransacao" class="grid grid-cols-1 md:grid-cols-6 gap-4">
         <input type="text" id="descricao" placeholder="Descrição" class="border p-2 rounded col-span-1 md:col-span-2" />
-        <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" />
+        <input type="text" id="valor" placeholder="Valor (R$)" class="border p-2 rounded" inputmode="decimal" />
         
         <select id="tipo" class="border p-2 rounded">
           <option value="">Tipo</option>
@@ -42,9 +38,8 @@
           <option value="despesa">Despesa</option>
         </select>
 
-        <!-- Campos condicionais -->
-        <input type="date" id="dataMovimento" class="border p-2 rounded hidden" title="Data de Movimento" />
-        <input type="date" id="vencimento" class="border p-2 rounded hidden" title="Data de Vencimento" />
+        <input type="date" id="dataMovimento" class="border p-2 rounded hidden" />
+        <input type="date" id="vencimento" class="border p-2 rounded hidden" />
 
         <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
           <i data-feather="plus" class="inline w-4 h-4 mr-1"></i>Salvar
@@ -52,17 +47,11 @@
       </form>
     </div>
 
-    <!-- Relatório financeiro -->
+    <!-- Totais -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold" id="totalReceitas">
-        Receitas: R$ 0,00
-      </div>
-      <div class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold" id="totalDespesas">
-        Despesas: R$ 0,00
-      </div>
-      <div class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold" id="saldoFinal">
-        Saldo: R$ 0,00
-      </div>
+      <div id="totalReceitas" class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold">Receitas: R$ 0,00</div>
+      <div id="totalDespesas" class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold">Despesas: R$ 0,00</div>
+      <div id="saldoFinal" class="bg-blue-100 text-blue-700 p-4 rounded-xl text-center font-semibold">Saldo: R$ 0,00</div>
     </div>
 
     <!-- Gráfico -->
@@ -100,7 +89,6 @@
       serverTimestamp, query, orderBy
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // 🔧 CONFIGURAÇÃO DO FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyBKL1wKzXRmQl75S1L0JwEzsT_UPtoLq5o",
       authDomain: "moneymagnet-financeiro.firebaseapp.com",
@@ -110,21 +98,18 @@
       appId: "1:861048650591:web:7d62142069a213b67b14ea"
     };
 
-    // Inicializa o app e Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Referências de elementos
     const form = document.getElementById("formTransacao");
-    const tabela = document.getElementById("tabelaTransacoes").querySelector("tbody");
-    const graficoCanvas = document.getElementById("grafico");
+    const tabela = document.querySelector("#tabelaTransacoes tbody");
     const inputValor = document.getElementById("valor");
     const inputTipo = document.getElementById("tipo");
     const inputVencimento = document.getElementById("vencimento");
     const inputMovimento = document.getElementById("dataMovimento");
     let grafico;
 
-    // 💡 Exibir/ocultar campos conforme o tipo
+    // 🔁 Alterna entre os campos conforme o tipo
     inputTipo.addEventListener("change", () => {
       if (inputTipo.value === "receita") {
         inputMovimento.classList.remove("hidden");
@@ -132,28 +117,24 @@
         inputMovimento.disabled = false;
         inputVencimento.disabled = true;
         inputVencimento.value = "";
-        inputMovimento.focus();
       } else if (inputTipo.value === "despesa") {
         inputVencimento.classList.remove("hidden");
         inputMovimento.classList.add("hidden");
         inputVencimento.disabled = false;
         inputMovimento.disabled = true;
         inputMovimento.value = "";
-
-        // destaque visual no campo vencimento
         inputVencimento.classList.add("border-red-500", "bg-red-50");
-        inputVencimento.focus();
       } else {
         inputMovimento.classList.add("hidden");
         inputVencimento.classList.add("hidden");
       }
     });
 
-    // 💰 Formatação automática de milhar no campo valor
-    inputValor.addEventListener("input", () => {
-      let valor = inputValor.value.replace(/[^\d,]/g, "").replace(",", ".");
-      if (!isNaN(valor) && valor.trim() !== "") {
-        const numero = parseFloat(valor);
+    // 💰 Formatação de valor (aplicada apenas ao sair do campo)
+    inputValor.addEventListener("blur", () => {
+      let valor = inputValor.value.replace(/\./g, "").replace(",", ".");
+      const numero = parseFloat(valor);
+      if (!isNaN(numero)) {
         inputValor.value = numero.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -161,7 +142,7 @@
       }
     });
 
-    // Adiciona nova transação
+    // ✅ Enviar dados
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
@@ -186,64 +167,48 @@
       });
 
       form.reset();
-      inputVencimento.classList.add("hidden");
       inputMovimento.classList.add("hidden");
+      inputVencimento.classList.add("hidden");
     });
 
-    // Função para renderizar dados
+    // 🔎 Renderização
     function carregarTransacoes(snapshot) {
       tabela.innerHTML = "";
-      let receitas = 0;
-      let despesas = 0;
-
+      let receitas = 0, despesas = 0;
       snapshot.forEach(doc => {
         const t = doc.data();
         let dataInclusao = "-";
-        if (t.data && t.data.toDate) {
+        if (t.data?.toDate) {
           const d = new Date(t.data.toDate());
           dataInclusao = d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
         }
 
-        const dataMovimento = t.dataMovimento
-          ? new Date(t.dataMovimento).toLocaleDateString("pt-BR")
-          : "—";
-
-        const dataVencimento = t.vencimento
-          ? new Date(t.vencimento).toLocaleDateString("pt-BR")
-          : "—";
-
-        // 🔥 Verifica se o vencimento está atrasado
-        const vencido = t.vencimento && new Date(t.vencimento) < new Date();
-
         const linha = `
-          <tr class="border-b hover:bg-gray-50 ${vencido ? 'bg-red-100' : ''}">
-            <td class="p-2">${t.descricao || "(sem descrição)"}</td>
-            <td class="p-2 ${t.tipo === "receita" ? "text-green-600" : "text-red-600"}">${t.tipo || "—"}</td>
-            <td class="p-2">${t.valor ? t.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00"}</td>
-            <td class="p-2 text-gray-600">${dataMovimento}</td>
-            <td class="p-2 text-gray-600">${dataVencimento}</td>
-            <td class="p-2 text-gray-600">${dataInclusao}</td>
-          </tr>
-        `;
+          <tr class="border-b hover:bg-gray-50">
+            <td class="p-2">${t.descricao}</td>
+            <td class="p-2 ${t.tipo === 'receita' ? 'text-green-600' : 'text-red-600'}">${t.tipo}</td>
+            <td class="p-2">${t.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            <td class="p-2">${t.dataMovimento ? new Date(t.dataMovimento).toLocaleDateString('pt-BR') : '—'}</td>
+            <td class="p-2">${t.vencimento ? new Date(t.vencimento).toLocaleDateString('pt-BR') : '—'}</td>
+            <td class="p-2">${dataInclusao}</td>
+          </tr>`;
         tabela.innerHTML += linha;
 
-        if (t.tipo === "receita") receitas += t.valor || 0;
-        else if (t.tipo === "despesa") despesas += t.valor || 0;
+        if (t.tipo === "receita") receitas += t.valor;
+        if (t.tipo === "despesa") despesas += t.valor;
       });
 
-      // Atualiza totais
       document.getElementById("totalReceitas").innerText = `Receitas: R$ ${receitas.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
       document.getElementById("totalDespesas").innerText = `Despesas: R$ ${despesas.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
       document.getElementById("saldoFinal").innerText = `Saldo: R$ ${(receitas - despesas).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-      // Atualiza gráfico
       atualizarGrafico(receitas, despesas);
     }
 
-    // Atualiza o gráfico
+    // 🧁 Gráfico
     function atualizarGrafico(receitas, despesas) {
       if (grafico) grafico.destroy();
-      grafico = new Chart(graficoCanvas, {
+      grafico = new Chart(document.getElementById("grafico"), {
         type: "doughnut",
         data: {
           labels: ["Receitas", "Despesas"],
@@ -252,21 +217,13 @@
             backgroundColor: ["#16a34a", "#dc2626"]
           }]
         },
-        options: {
-          plugins: {
-            legend: { position: "bottom" }
-          }
-        }
+        options: { plugins: { legend: { position: "bottom" } } }
       });
     }
 
-    // Escuta alterações em tempo real
     const q = query(collection(db, "transacoes"), orderBy("data", "desc"));
-    onSnapshot(q, (snapshot) => {
-      carregarTransacoes(snapshot);
-    });
-
-    getDocs(collection(db, "transacoes")).then(snapshot => carregarTransacoes(snapshot));
+    onSnapshot(q, (snap) => carregarTransacoes(snap));
+    getDocs(collection(db, "transacoes")).then((snap) => carregarTransacoes(snap));
     feather.replace();
   </script>
 </body>
