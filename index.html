@@ -86,7 +86,14 @@
 
       <!-- Tabela Despesas -->
       <div class="bg-white p-6 rounded-xl shadow">
-        <h3 class="text-xl font-semibold mb-4 text-red-700">❤️ Despesas</h3>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-red-700">❤️ Despesas</h3>
+          <div class="space-x-2">
+            <button id="filtroTodas" class="px-3 py-1 bg-indigo-600 text-white rounded">Todas</button>
+            <button id="filtroAbertas" class="px-3 py-1 bg-yellow-500 text-white rounded">Em Aberto</button>
+            <button id="filtroPagas" class="px-3 py-1 bg-green-600 text-white rounded">Pagas</button>
+          </div>
+        </div>
         <div class="overflow-x-auto">
           <table id="tabelaDespesas" class="w-full text-left border">
             <thead>
@@ -134,6 +141,7 @@
     const tabelaReceitas = document.getElementById("tabelaReceitas").querySelector("tbody");
     const tabelaDespesas = document.getElementById("tabelaDespesas").querySelector("tbody");
     let grafico;
+    let filtroStatus = "todas"; // novo filtro
 
     // Máscara valor
     valorInput.addEventListener("input", () => {
@@ -144,7 +152,7 @@
       valorInput.value = v;
     });
 
-    // Conversões de data
+    // Datas
     function toBrDate(dateStr) {
       if (!dateStr) return "";
       const [yyyy, mm, dd] = dateStr.split("-");
@@ -170,7 +178,7 @@
       }
     });
 
-    // Salvar transação
+    // Salvar
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
@@ -213,17 +221,23 @@
             </tr>`;
         } else if (t.tipo === "despesa") {
           despesas += t.valor || 0;
-          tabelaDespesas.innerHTML += `
-            <tr class="border-b hover:bg-gray-50">
-              <td class="p-2">${t.descricao}</td>
-              <td class="p-2">R$ ${valorFmt}</td>
-              <td class="p-2">${t.dataVencimento || "-"}</td>
-              <td class="p-2 text-center">${t.pago ? "✅ Pago" : "⏳ Em aberto"}</td>
-              <td class="p-2 text-gray-600">${t.dataPagamento || "-"}</td>
-              <td class="p-2 text-center">
-                ${!t.pago ? `<button data-id="${id}" class="baixar bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Baixar</button>` : ""}
-              </td>
-            </tr>`;
+          if (
+            filtroStatus === "todas" ||
+            (filtroStatus === "abertas" && !t.pago) ||
+            (filtroStatus === "pagas" && t.pago)
+          ) {
+            tabelaDespesas.innerHTML += `
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-2">${t.descricao}</td>
+                <td class="p-2">R$ ${valorFmt}</td>
+                <td class="p-2">${t.dataVencimento || "-"}</td>
+                <td class="p-2 text-center">${t.pago ? "✅ Pago" : "⏳ Em aberto"}</td>
+                <td class="p-2 text-gray-600">${t.dataPagamento || "-"}</td>
+                <td class="p-2 text-center">
+                  ${!t.pago ? `<button data-id="${id}" class="baixar bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Baixar</button>` : ""}
+                </td>
+              </tr>`;
+          }
         }
       });
 
@@ -256,6 +270,12 @@
       });
     }
 
+    // Filtros
+    document.getElementById("filtroTodas").onclick = () => { filtroStatus = "todas"; };
+    document.getElementById("filtroAbertas").onclick = () => { filtroStatus = "abertas"; };
+    document.getElementById("filtroPagas").onclick = () => { filtroStatus = "pagas"; };
+
+    // Recarregar interface a cada atualização
     onSnapshot(collection(db, "transacoes"), (snapshot) => atualizarInterface(snapshot));
     feather.replace();
   </script>
