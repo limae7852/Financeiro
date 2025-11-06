@@ -51,7 +51,7 @@
       </form>
     </div>
 
-    <!-- Relatório financeiro -->
+    <!-- Resumo financeiro -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-green-100 text-green-700 p-4 rounded-xl text-center font-semibold" id="totalReceitas">Receitas: R$ 0,00</div>
       <div class="bg-red-100 text-red-700 p-4 rounded-xl text-center font-semibold" id="totalDespesas">Despesas: R$ 0,00</div>
@@ -64,7 +64,7 @@
       <canvas id="grafico" height="30" style="max-width:300px; margin:auto;"></canvas>
     </div>
 
-    <!-- TABELAS -->
+    <!-- Tabelas -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- Tabela Receitas -->
       <div class="bg-white p-6 rounded-xl shadow">
@@ -113,7 +113,7 @@
     </div>
   </main>
 
-  <!-- Firebase -->
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
@@ -140,10 +140,12 @@
     const graficoCanvas = document.getElementById("grafico");
     const tabelaReceitas = document.getElementById("tabelaReceitas").querySelector("tbody");
     const tabelaDespesas = document.getElementById("tabelaDespesas").querySelector("tbody");
-    let grafico;
-    let filtroStatus = "todas"; // novo filtro
 
-    // Máscara valor
+    let grafico;
+    let filtroStatus = "todas";
+    let cacheSnapshot = [];
+
+    // Máscara de valor
     valorInput.addEventListener("input", () => {
       let v = valorInput.value.replace(/\D/g, "");
       v = (v / 100).toFixed(2) + "";
@@ -152,7 +154,7 @@
       valorInput.value = v;
     });
 
-    // Datas
+    // Funções de data
     function toBrDate(dateStr) {
       if (!dateStr) return "";
       const [yyyy, mm, dd] = dateStr.split("-");
@@ -163,6 +165,7 @@
       return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth()+1).padStart(2, "0")}/${d.getFullYear()}`;
     }
 
+    // Troca entre receita/despesa
     tipoSelect.addEventListener("change", () => {
       const tipo = tipoSelect.value;
       const hoje = new Date().toISOString().split("T")[0];
@@ -178,7 +181,7 @@
       }
     });
 
-    // Salvar
+    // Salvar transação
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const descricao = document.getElementById("descricao").value.trim();
@@ -200,12 +203,13 @@
       form.reset(); dataMov.disabled = true; dataVenc.disabled = true;
     });
 
-    function atualizarInterface(snapshot) {
+    // Atualizar interface
+    function atualizarInterface(snapshotDocs) {
       tabelaReceitas.innerHTML = "";
       tabelaDespesas.innerHTML = "";
       let receitas = 0, despesas = 0;
 
-      snapshot.forEach(docSnap => {
+      snapshotDocs.forEach(docSnap => {
         const t = docSnap.data();
         const id = docSnap.id;
         const valorFmt = t.valor ? t.valor.toFixed(2).replace(".", ",") : "0,00";
@@ -221,6 +225,7 @@
             </tr>`;
         } else if (t.tipo === "despesa") {
           despesas += t.valor || 0;
+
           if (
             filtroStatus === "todas" ||
             (filtroStatus === "abertas" && !t.pago) ||
@@ -249,6 +254,7 @@
       adicionarEventosBaixa();
     }
 
+    // Gráfico
     function atualizarGrafico(receitas, despesas) {
       if (grafico) grafico.destroy();
       grafico = new Chart(graficoCanvas, {
@@ -258,6 +264,7 @@
       });
     }
 
+    // Baixa de despesa
     function adicionarEventosBaixa() {
       document.querySelectorAll(".baixar").forEach(btn => {
         btn.addEventListener("click", async () => {
@@ -270,13 +277,23 @@
       });
     }
 
-    // Filtros
-    document.getElementById("filtroTodas").onclick = () => { filtroStatus = "todas"; };
-    document.getElementById("filtroAbertas").onclick = () => { filtroStatus = "abertas"; };
-    document.getElementById("filtroPagas").onclick = () => { filtroStatus = "pagas"; };
+    // Filtros funcionais
+    document.getElementById("filtroTodas").onclick = () => {
+      filtroStatus = "todas"; atualizarInterface(cacheSnapshot);
+    };
+    document.getElementById("filtroAbertas").onclick = () => {
+      filtroStatus = "abertas"; atualizarInterface(cacheSnapshot);
+    };
+    document.getElementById("filtroPagas").onclick = () => {
+      filtroStatus = "pagas"; atualizarInterface(cacheSnapshot);
+    };
 
-    // Recarregar interface a cada atualização
-    onSnapshot(collection(db, "transacoes"), (snapshot) => atualizarInterface(snapshot));
+    // Escuta o Firestore
+    onSnapshot(collection(db, "transacoes"), (snapshot) => {
+      cacheSnapshot = snapshot.docs;
+      atualizarInterface(cacheSnapshot);
+    });
+
     feather.replace();
   </script>
 </body>
